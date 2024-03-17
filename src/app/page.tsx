@@ -5,7 +5,7 @@ import marked from '@/utils/marked';
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { SaveOne } from "@icon-park/react";
+import { OpenDoor, SaveOne } from "@icon-park/react";
 
 export default function Home() {
 
@@ -79,8 +79,43 @@ export default function Home() {
     setTOC(removeThreeLevel);
   }
 
+  const handleOpenLocalFile = () => {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.md';
+    fileInput.onchange = (e) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const content = e.target.result as string;
+        textAreaRef.current!.value = content;
+        const result = await marked(content)
+        setMarkedResult(result);
+        generateToc();
+      }
+      reader.readAsText(file);
+      fileInput.remove();
+    }
+    fileInput.click();
+  }
+
   return (
     <main className="flex h-screen flex-row justify-center">
+
+      {/* 暂定：工具栏 */}
+      <div className={cn(
+        'w-12 h-12 rounded-full',
+        'fixed bottom-24 right-10 z-50 ',
+        'bg-black'
+      )}>
+        <span onClick={handleOpenLocalFile} className={cn(
+          'w-12 h-12 rounded-full',
+          'flex items-center justify-center',
+          'cursor-pointer'
+        )}>
+          <OpenDoor theme="outline" size="24" fill="#ffffff" strokeWidth={3}/>
+        </span>
+      </div>
 
       {/* 暂定：工具栏 */}
       <div className={cn(
@@ -88,17 +123,17 @@ export default function Home() {
         'fixed bottom-10 right-10 z-50 ',
         'bg-black'
       )}>
-        <DropdownMenu >
-          <DropdownMenuTrigger>
-            <span onClick={handleExportClick} className={cn(
-              'w-12 h-12 rounded-full',
-              'flex items-center justify-center',
-              'cursor-pointer'
-            )}>
-              <SaveOne theme="outline" size="24" fill="#ffffff" strokeWidth={3} />
-            </span>
-          </DropdownMenuTrigger>
-          {/* <DropdownMenuContent>
+        {/* <DropdownMenu > */}
+        {/* <DropdownMenuTrigger> */}
+        <span onClick={handleExportClick} className={cn(
+          'w-12 h-12 rounded-full',
+          'flex items-center justify-center',
+          'cursor-pointer'
+        )}>
+          <SaveOne theme="outline" size="24" fill="#ffffff" strokeWidth={3} />
+        </span>
+        {/* </DropdownMenuTrigger> */}
+        {/* <DropdownMenuContent>
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Profile</DropdownMenuItem>
@@ -106,7 +141,7 @@ export default function Home() {
             <DropdownMenuItem>Team</DropdownMenuItem>
             <DropdownMenuItem>Subscription</DropdownMenuItem>
           </DropdownMenuContent> */}
-        </DropdownMenu>
+        {/* </DropdownMenu> */}
       </div>
       {/* 编辑区 */}
       <div className={cn(
