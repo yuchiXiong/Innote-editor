@@ -301,6 +301,14 @@
 .marked ol {
   padding-left: 30px;
 }
+.marked ul {
+  list-style: circle;
+}
+
+.marked ol {
+  list-style: decimal;
+}
+
 .marked ul:first-child,
 .marked ol:first-child {
   margin-top: 0;
@@ -537,4 +545,14 @@
   object-fit: cover;
   height: 100%;
   width: 100%;
+}
+
+.marked a[href*='bilibili'] {
+  display: flex;
+  justify-content: center;
+}
+
+.marked a[href*='bilibili'] iframe {
+  height: 360px !important;
+  width: 600px !important;
 }

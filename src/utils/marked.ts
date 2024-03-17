@@ -1,6 +1,8 @@
 import { marked } from "marked";
 import axios from "axios";
 import * as cheerio from "cheerio";
+import { markedHighlight } from "marked-highlight";
+import hljs from "highlight.js";
 
 const cleanUrl = (href: string) => {
   try {
@@ -11,13 +13,16 @@ const cleanUrl = (href: string) => {
   return href;
 };
 
-const cache = new Map<string, {
-  title: string;
-  description: string;
-  siteName: string;
-  url: string;
-  image: string;
-}>();
+const cache = new Map<
+  string,
+  {
+    title: string;
+    description: string;
+    siteName: string;
+    url: string;
+    image: string;
+  }
+>();
 
 const fetchLinkOpenGraph = async (url: string) => {
   if (cache.has(url)) {
@@ -28,15 +33,14 @@ const fetchLinkOpenGraph = async (url: string) => {
     response = await axios(`/api/open-graph?url=${url}`);
   } catch (error) {
     // do nothing;
-  } 
+  }
 
   // todo 默认视图
   if (!response) return;
 
-
   const obj = response.data.result;
   console.log(obj);
-  
+
   cache.set(url, obj);
 
   return obj;
@@ -48,6 +52,7 @@ marked.use({
     if (token.type === "link") {
       const cleanHref = cleanUrl(token.href);
       if (cleanHref?.includes("bilibili")) {
+        console.log(token);
         // 生成 B 站内嵌视频的标签
         const bid = new URL(cleanHref).pathname
           .split("/")
@@ -55,12 +60,14 @@ marked.use({
           .pop();
         if (!bid) false;
 
-        const vidoeIframe = `<iframe src="//player.bilibili.com/player.html?bvid=${bid}&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>`;
+        const vidoeIframe = `<iframe referrerpolicy="origin" src="//player.bilibili.com/player.html?bvid=${bid}&amp;page=1&amp;high_quality=1&amp;as_wide=1&amp;allowfullscreen=true&amp;autoplay=0" frameborder="no" allowfullscreen="" sandbox="allow-top-navigation-by-user-activation allow-same-origin allow-forms allow-scripts allow-popups" class="" style="width: 100%; height: 100%;" data-spm-anchor-id="wolai.workspace.0.i0.4d2b767bSGb7ID" data-spm-act-id="wolai.workspace.0.i0.4d2b767bSGb7ID"></iframe>`
         token.tokens = marked.Lexer.lexInline(vidoeIframe);
       } else if (
         cleanHref?.includes("douban") ||
         cleanHref?.includes("github")
       ) {
+        console.log(token);
+
         // 生成缩略板块
         const desc = await fetchLinkOpenGraph(cleanHref);
 
@@ -79,7 +86,17 @@ marked.use({
         token.tokens = marked.Lexer.lexInline(card);
       }
     }
-  },
+  }
 });
+
+marked.use(
+  markedHighlight({
+    langPrefix: "hljs language-",
+    highlight(code, lang, info) {
+      const language = hljs.getLanguage(lang) ? lang : "plaintext";
+      return hljs.highlight(code, { language }).value;
+    },
+  })
+);
 
 export default marked;
