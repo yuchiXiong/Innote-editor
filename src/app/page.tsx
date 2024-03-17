@@ -10,6 +10,7 @@ import { SaveOne } from "@icon-park/react";
 export default function Home() {
 
   const [markedResult, setMarkedResult] = useState<string>('');
+  const [toc, setTOC] = useState<string>('');
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const markedResultRef = useRef<HTMLDivElement>(null);
 
@@ -21,6 +22,7 @@ export default function Home() {
 
     markedAsync().then(res => {
       setMarkedResult(res);
+      generateToc();
     });
 
     if (textAreaRef.current) {
@@ -50,6 +52,7 @@ export default function Home() {
     const originContent = e.currentTarget.value;
     const _markedResult = await marked(originContent);
     setMarkedResult(_markedResult);
+    generateToc();
     localStorage.setItem('TEST_CONTENT', originContent);
   }
 
@@ -66,8 +69,20 @@ export default function Home() {
     URL.revokeObjectURL(url);
   }
 
+  const generateToc = async () => {
+    const content = textAreaRef.current?.value;
+    const toc = content?.split('\n').filter(i => i.startsWith('#')).join('\n') || '';
+    const result = await marked(toc);
+    const removeThreeLevel = result.split('\n').filter(i => {
+      return i.startsWith('<h1') || i.startsWith('<h2') || i.startsWith('<h3');
+    }).join('\n');
+    setTOC(removeThreeLevel);
+  }
+
   return (
-    <main className="flex h-screen flex-row items-center justify-between">
+    <main className="flex h-screen flex-row justify-center">
+
+      {/* 暂定：工具栏 */}
       <div className={cn(
         'w-12 h-12 rounded-full',
         'fixed bottom-10 right-10 z-50 ',
@@ -80,7 +95,7 @@ export default function Home() {
               'flex items-center justify-center',
               'cursor-pointer'
             )}>
-              <SaveOne theme="outline" size="24" fill="#ffffff" strokeWidth={3}/>
+              <SaveOne theme="outline" size="24" fill="#ffffff" strokeWidth={3} />
             </span>
           </DropdownMenuTrigger>
           {/* <DropdownMenuContent>
@@ -93,6 +108,7 @@ export default function Home() {
           </DropdownMenuContent> */}
         </DropdownMenu>
       </div>
+      {/* 编辑区 */}
       <div className={cn(
         'flex-1 h-full max-h-full',
         'overflow-auto',
@@ -106,6 +122,7 @@ export default function Home() {
             'border-none shadow-none focus-visible:ring-0 focus-visible:shadow-none',
           )} />
       </div>
+      {/* 预览区 */}
       <div
         dangerouslySetInnerHTML={{ __html: markedResult }}
         ref={markedResultRef}
@@ -115,7 +132,17 @@ export default function Home() {
           'overflow-auto',
           'px-8 py-4'
         )}>
+
       </div>
+      {/* 目录 */}
+      <div
+        className={cn(
+          'marked-toc',
+          'pl-4 py-2 pr-16',
+          'max-w-max max-h-max',
+        )}
+        dangerouslySetInnerHTML={{ __html: toc }}
+      />
     </main>
   );
 }

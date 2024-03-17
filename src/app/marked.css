@@ -302,7 +302,7 @@
   padding-left: 30px;
 }
 .marked ul {
-  list-style: circle;
+  list-style: disc;
 }
 
 .marked ol {
@@ -555,4 +555,21 @@
 .marked a[href*='bilibili'] iframe {
   height: 360px !important;
   width: 600px !important;
+}
+
+.marked-toc h1 {
+  @apply pl-0 text-black font-medium;
+  @apply mt-1 mb-1;
+}
+
+.marked-toc h2 {
+  @apply pl-4 text-gray-500 text-sm;
+  @apply mt-1 mb-1;
+}
+
+.marked-toc h3 {
+  @apply pl-8 text-gray-500 text-sm;
+  @apply mt-1 mb-1;
+  
+
 }
