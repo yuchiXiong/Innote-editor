@@ -84,10 +84,11 @@ export default function Home() {
     fileInput.type = 'file';
     fileInput.accept = '.md';
     fileInput.onchange = (e) => {
-      const file = e.target.files[0];
+      const file = (e.target as HTMLInputElement)?.files?.[0];
+      if (!file) return;
       const reader = new FileReader();
       reader.onload = async (e) => {
-        const content = e.target.result as string;
+        const content = e.target?.result as string;
         textAreaRef.current!.value = content;
         const result = await marked(content)
         setMarkedResult(result);
