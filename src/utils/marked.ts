@@ -25,26 +25,52 @@ const cache = new Map<
   }
 >();
 
-const fetchLinkOpenGraph = async (url: string) => {
+const fetchLinkOpenGraph = async (
+  url: string
+): Promise<
+  [
+    boolean,
+    (
+      | {
+          title: string;
+          description: string;
+          siteName: string;
+          url: string;
+          image: string;
+        }
+      | undefined
+    )
+  ]
+> => {
   if (cache.has(url)) {
-    return cache.get(url);
+    return [
+      false,
+      cache.get(url) as {
+        title: string;
+        description: string;
+        siteName: string;
+        url: string;
+        image: string;
+      },
+    ];
   }
   let response = null;
   try {
     response = await axios(`/api/open-graph?url=${url}`);
   } catch (error) {
     // do nothing;
+    return [true, undefined];
   }
 
   // todo 默认视图
-  if (!response) return;
+  if (!response) return [true, undefined];
 
   const obj = response.data.result;
   console.log(obj);
 
   cache.set(url, obj);
 
-  return obj;
+  return [false, obj];
 };
 
 marked.use({
@@ -79,33 +105,41 @@ marked.use({
         if (token.raw.startsWith("http") || token.raw.startsWith("https")) {
           const uuid = nanoid();
           /** 生成默认预取板块 */
-          const defaultCard = `<div class="marked-link-og" id="${uuid}">
+          const defaultCard = `<div class="marked-link-og" id="card_${uuid}">
               <p class="og-default-title">预取中……</p>
             </div>`;
           token.tokens = marked.Lexer.lexInline(defaultCard);
 
           /** 拉取并生成缩略板块 */
-          fetchLinkOpenGraph(cleanHref).then((desc) => {
-            const { url, title, description, siteName, image } = desc || {
-              url: "",
-              title: "",
-              description: "",
-              siteName: "",
-              image: "",
-            };
-            const isFetched = url || title || description || siteName || image;
-            const card = isFetched
-              ? `<div class="og-info">
-                    <p class="og-title">${desc?.title}</p>
-                    <p class="og-description">${desc?.description}</p>
-                    <p class="og-site">${desc?.siteName}</p>
-                  </div>
-                  <div class="og-image">
-                    <img src="${desc?.image}" referrerPolicy="no-referrer" alt="${desc?.title}" />
-                  </div>`
-              : defaultCard;
+          fetchLinkOpenGraph(cleanHref).then((result) => {
+            const [err, desc] = result;
 
-            const target = document.querySelector(`#${uuid}`);
+            let card = "";
+            if (err) {
+              card = `<p class="og-default-title">拉取失败</p>`;
+            } else {
+              const { url, title, description, siteName, image } = desc || {
+                url: "",
+                title: "",
+                description: "",
+                siteName: "",
+                image: "",
+              };
+              const isFetched =
+                url || title || description || siteName || image;
+              card = isFetched
+                ? `<div class="og-info">
+                      <p class="og-title">${desc?.title}</p>
+                      <p class="og-description">${desc?.description}</p>
+                      <p class="og-site">${desc?.siteName}</p>
+                    </div>
+                    <div class="og-image">
+                      <img src="${desc?.image}" referrerPolicy="no-referrer" alt="${desc?.title}" />
+                    </div>`
+                : defaultCard;
+            }
+
+            const target = document.querySelector(`#card_${uuid}`);
             console.log(target);
             if (target) {
               target.innerHTML = card;
