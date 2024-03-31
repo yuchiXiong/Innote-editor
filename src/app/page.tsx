@@ -6,6 +6,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { OpenDoor, SaveOne } from "@icon-park/react";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable"
 
 export default function Home() {
 
@@ -102,7 +107,6 @@ export default function Home() {
 
   return (
     <main className="flex h-screen flex-row justify-center">
-
       {/* 暂定：工具栏 */}
       <div className={cn(
         'w-12 h-12 rounded-full',
@@ -114,7 +118,7 @@ export default function Home() {
           'flex items-center justify-center',
           'cursor-pointer'
         )}>
-          <OpenDoor theme="outline" size="24" fill="#ffffff" strokeWidth={3}/>
+          <OpenDoor theme="outline" size="24" fill="#ffffff" strokeWidth={3} />
         </span>
       </div>
 
@@ -144,41 +148,58 @@ export default function Home() {
           </DropdownMenuContent> */}
         {/* </DropdownMenu> */}
       </div>
-      {/* 编辑区 */}
-      <div className={cn(
-        'flex-1 h-full max-h-full',
-        'overflow-auto',
-        'border-r border-gray-200 border-solid'
-      )}>
-        <Textarea
-          ref={textAreaRef}
-          onInput={handleInput}
-          className={cn(
-            'w-full h-full',
-            'border-none shadow-none focus-visible:ring-0 focus-visible:shadow-none',
-          )} />
-      </div>
-      {/* 预览区 */}
-      <div
-        dangerouslySetInnerHTML={{ __html: markedResult }}
-        ref={markedResultRef}
-        className={cn(
-          'marked',
-          'flex-1 h-full max-h-full',
-          'overflow-auto',
-          'px-8 py-4'
-        )}>
 
-      </div>
-      {/* 目录 */}
-      <div
-        className={cn(
-          'marked-toc',
-          'pl-4 py-2 pr-16',
-          'max-w-max max-h-max',
-        )}
-        dangerouslySetInnerHTML={{ __html: toc }}
-      />
+
+      <ResizablePanelGroup direction="horizontal">
+        <ResizablePanel defaultSize={42}>
+
+          {/* 编辑区 */}
+          <div className={cn(
+            'flex-1 h-full max-h-full',
+            'overflow-auto',
+            'border-r border-gray-200 border-solid'
+          )}>
+            <Textarea
+              ref={textAreaRef}
+              onInput={handleInput}
+              className={cn(
+                'w-full h-full',
+                'px-8 py-4 box-border',
+                'text-base text-[#263e7a] font-mono leading-7',
+                'border-none shadow-none focus-visible:ring-0 focus-visible:shadow-none',
+              )} />
+          </div>
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel defaultSize={42}>
+          {/* 预览区 */}
+          <div
+            dangerouslySetInnerHTML={{ __html: markedResult }}
+            ref={markedResultRef}
+            className={cn(
+              'markdown-body',
+              'flex-1 h-full max-h-full',
+              'overflow-auto',
+              'px-8 py-4'
+            )}>
+
+          </div>
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel defaultSize={16}>
+          {/* 目录 */}
+          <div
+            className={cn(
+              'marked-toc',
+              'pl-4 py-2 pr-16',
+              'max-w-max max-h-max',
+            )}
+            dangerouslySetInnerHTML={{ __html: toc }}
+          />
+
+        </ResizablePanel>
+      </ResizablePanelGroup>
+
     </main>
   );
 }
