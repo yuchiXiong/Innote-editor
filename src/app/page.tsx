@@ -178,9 +178,9 @@ export default function Home() {
             ref={markedResultRef}
             className={cn(
               'markdown-body',
-              'flex-1 h-full max-h-full',
+              'flex-1 h-full max-h-full box-border',
               'overflow-auto',
-              'px-8 py-4'
+              'px-8 pt-4 pb-24'
             )}>
 
           </div>
