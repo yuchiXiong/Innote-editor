@@ -41,7 +41,7 @@ export default function Home() {
     return () => {
       textAreaRef.current?.removeEventListener('scroll', scrollHandler);
     }
-  })
+  }, []);
 
   const scrollHandler = (e: Event) => {
     const scrollTop = (e.target as HTMLTextAreaElement).scrollTop;
@@ -175,6 +175,7 @@ export default function Home() {
           {/* 预览区 */}
           <div
             dangerouslySetInnerHTML={{ __html: markedResult }}
+            key={markedResult}
             ref={markedResultRef}
             className={cn(
               'markdown-body',

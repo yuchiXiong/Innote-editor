@@ -300,8 +300,13 @@
   max-height: 120px;
   @apply border border-solid border-gray-300 rounded overflow-hidden;
 }
+.marked-link-og .og-default-title {
+  @apply pl-4 text-gray-600 font-semibold;
+}
+
 .marked-link-og a {
   display: flex;
+  border: none;
 }
 .marked-link-og .og-info {
   display: flex;

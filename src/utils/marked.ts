@@ -3,6 +3,7 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import { markedHighlight } from "marked-highlight";
 import hljs from "highlight.js";
+import { nanoid } from "nanoid";
 
 const cleanUrl = (href: string) => {
   try {
@@ -60,43 +61,65 @@ marked.use({
           .pop();
         if (!bid) return Promise.resolve(void 0);
 
-        const videoIframe = `<iframe referrerpolicy="origin" src="//player.bilibili.com/player.html?bvid=${bid}&amp;page=1&amp;high_quality=1&amp;as_wide=1&amp;allowfullscreen=true&amp;autoplay=0" frameborder="no" allowfullscreen="" sandbox="allow-top-navigation-by-user-activation allow-same-origin allow-forms allow-scripts allow-popups" class="" style="width: 100%; height: 100%;" data-spm-anchor-id="wolai.workspace.0.i0.4d2b767bSGb7ID" data-spm-act-id="wolai.workspace.0.i0.4d2b767bSGb7ID"></iframe>`
+        const videoIframe = `<iframe referrerpolicy="origin" src="//player.bilibili.com/player.html?bvid=${bid}&amp;page=1&amp;high_quality=1&amp;as_wide=1&amp;allowfullscreen=true&amp;autoplay=0" frameborder="no" allowfullscreen="" sandbox="allow-top-navigation-by-user-activation allow-same-origin allow-forms allow-scripts allow-popups" class="" style="width: 100%; height: 100%;" data-spm-anchor-id="wolai.workspace.0.i0.4d2b767bSGb7ID" data-spm-act-id="wolai.workspace.0.i0.4d2b767bSGb7ID"></iframe>`;
         token.tokens = marked.Lexer.lexInline(videoIframe);
-      } else if (
-        cleanHref?.includes("music.163.com")
-      ) {
-        
-        const id = new URL(cleanHref).hash.split('?').filter(i => i.startsWith('id='))[0].split('=')[1];
+      } else if (cleanHref?.includes("music.163.com")) {
+        const id = new URL(cleanHref).hash
+          .split("?")
+          .filter((i) => i.startsWith("id="))[0]
+          .split("=")[1];
         if (!id) return Promise.resolve(void 0);
 
         const musicIframe = `<iframe referrerpolicy="origin" src="https://music.163.com/outchain/player?type=2&amp;id=${id}&amp;auto=0&amp;height=66" frameborder="no" allowfullscreen="" sandbox="allow-top-navigation-by-user-activation allow-same-origin allow-forms allow-scripts allow-popups" class="" style="width: 100%; height: 100%; pointer-events: auto;"></iframe>`;
         token.tokens = marked.Lexer.lexInline(musicIframe);
-
       } else if (
         cleanHref?.includes("douban") ||
         cleanHref?.includes("github")
       ) {
-        console.log(token);
+        if (token.raw.startsWith("http") || token.raw.startsWith("https")) {
+          const uuid = nanoid();
+          /** 生成默认预取板块 */
+          const defaultCard = `<div class="marked-link-og" id="${uuid}">
+              <a href=${cleanHref} target="_blank">
+                <p class="og-default-title">${cleanHref}</p>
+              </a>
+            </div>`;
+          token.tokens = marked.Lexer.lexInline(defaultCard);
+          console.log(token.tokens);
 
-        // 生成缩略板块
-        const desc = await fetchLinkOpenGraph(cleanHref);
+          /** 拉取并生成缩略板块 */
+          fetchLinkOpenGraph(cleanHref).then((desc) => {
+            const { url, title, description, siteName, image } = desc || {
+              url: "",
+              title: "",
+              description: "",
+              siteName: "",
+              image: "",
+            };
+            const isFetched = url || title || description || siteName || image;
+            const card = isFetched
+              ? `<a href=${cleanHref} target="_blank">
+                  <div class="og-info">
+                    <p class="og-title">${desc?.title}</p>
+                    <p class="og-description">${desc?.description}</p>
+                    <p class="og-site">${desc?.siteName}</p>
+                  </div>
+                  <div class="og-image">
+                    <img src="${desc?.image}" referrerPolicy="no-referrer" alt="${desc?.title}" />
+                  </div>
+                </a>`
+              : defaultCard;
 
-        const card = `<a href="${desc?.url}">
-            <div class="marked-link-og">
-              <div class="og-info">
-                <p class="og-title">${desc?.title}</p>
-                <p class="og-description">${desc?.description}</p>
-                <p class="og-site">${desc?.siteName}</p>
-              </div>
-              <div class="og-image">
-                <img src="${desc?.image}" referrerPolicy="no-referrer" alt="${desc?.title}" />
-              </div>
-            </div>
-          </a>`;
-        token.tokens = marked.Lexer.lexInline(card);
+            const target = document.querySelector(`#${uuid}`);
+            console.log(target);
+            if (target) {
+              target.innerHTML = card;
+            }
+          });
+        }
       }
     }
-  }
+  },
 });
 
 marked.use(
