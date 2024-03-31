@@ -48,8 +48,7 @@ const fetchLinkOpenGraph = async (url: string) => {
 };
 
 marked.use({
-  async: true,
-  async walkTokens(token) {
+  walkTokens(token) {
     if (token.type === "link") {
       const cleanHref = cleanUrl(token.href);
       if (cleanHref?.includes("bilibili")) {
@@ -76,16 +75,14 @@ marked.use({
         cleanHref?.includes("douban") ||
         cleanHref?.includes("github")
       ) {
+        console.log(token.raw, cleanHref, token);
         if (token.raw.startsWith("http") || token.raw.startsWith("https")) {
           const uuid = nanoid();
           /** 生成默认预取板块 */
           const defaultCard = `<div class="marked-link-og" id="${uuid}">
-              <a href=${cleanHref} target="_blank">
-                <p class="og-default-title">${cleanHref}</p>
-              </a>
+              <p class="og-default-title">预取中……</p>
             </div>`;
           token.tokens = marked.Lexer.lexInline(defaultCard);
-          console.log(token.tokens);
 
           /** 拉取并生成缩略板块 */
           fetchLinkOpenGraph(cleanHref).then((desc) => {
@@ -98,22 +95,23 @@ marked.use({
             };
             const isFetched = url || title || description || siteName || image;
             const card = isFetched
-              ? `<a href=${cleanHref} target="_blank">
-                  <div class="og-info">
+              ? `<div class="og-info">
                     <p class="og-title">${desc?.title}</p>
                     <p class="og-description">${desc?.description}</p>
                     <p class="og-site">${desc?.siteName}</p>
                   </div>
                   <div class="og-image">
                     <img src="${desc?.image}" referrerPolicy="no-referrer" alt="${desc?.title}" />
-                  </div>
-                </a>`
+                  </div>`
               : defaultCard;
 
             const target = document.querySelector(`#${uuid}`);
             console.log(target);
             if (target) {
               target.innerHTML = card;
+              target.addEventListener("click", () => {
+                window.open(cleanHref, "_blank");
+              });
             }
           });
         }
