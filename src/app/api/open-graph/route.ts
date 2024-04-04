@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server"
+import { kv } from '@vercel/kv';
 import * as cheerio from "cheerio";
+import md5 from "md5";
 
 export async function GET(request: NextRequest) {
   const sp = request.nextUrl.searchParams;
@@ -9,7 +11,17 @@ export async function GET(request: NextRequest) {
     return new Response('Missing url parameter', { status: 400 });
   }
 
-  console.log(query);
+
+  const key = `url_preview_${md5(query)}`
+  const cache = await kv.get<string>(key);
+
+  if (cache) {
+    
+    return Response.json({ 
+      status: 'ok',
+      result: cache,
+     })
+  }
 
   const response = await fetch(query);
 
@@ -53,6 +65,8 @@ export async function GET(request: NextRequest) {
       }
     });
 
+  kv.set(key, obj);
+  console.log('set cache to ' + key)
 
   return Response.json({ 
     status: 'ok',
