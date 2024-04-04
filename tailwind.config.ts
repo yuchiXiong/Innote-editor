@@ -80,7 +80,7 @@ const config = {
   },
   plugins: [require("tailwindcss-animate")],
   corePlugins: {
-    preflight: false,
+    // preflight: false,
   }
 } satisfies Config;
 

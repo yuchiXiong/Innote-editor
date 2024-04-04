@@ -5,17 +5,36 @@ import marked from '@/utils/marked';
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { OpenDoor, SaveOne } from "@icon-park/react";
+import { Close, DifferenceSet, FullScreen, Minus, OpenDoor, SaveOne } from "@icon-park/react";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
-
+import {
+  Menubar,
+  MenubarCheckboxItem,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarRadioGroup,
+  MenubarRadioItem,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarSub,
+  MenubarSubContent,
+  MenubarSubTrigger,
+  MenubarTrigger,
+} from "@/components/ui/menubar"
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/ui/toggle-group"
 export default function Home() {
 
   const [markedResult, setMarkedResult] = useState<string>('');
   const [toc, setTOC] = useState<string>('');
+  const [isMaximized, setIsMaximized] = useState<boolean>(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const markedResultRef = useRef<HTMLDivElement>(null);
 
@@ -37,6 +56,9 @@ export default function Home() {
 
   useEffect(() => {
     textAreaRef.current?.addEventListener('scroll', scrollHandler);
+    (window as any).electronAPI.app.isMaximized().then(res => {
+      setIsMaximized(res);
+    })
 
     return () => {
       textAreaRef.current?.removeEventListener('scroll', scrollHandler);
@@ -84,6 +106,12 @@ export default function Home() {
     setTOC(removeThreeLevel);
   }
 
+  const handleHybridTest = async () => {
+    console.log('handleHybridTest', (window as any).electronAPI);
+    const filePath = await (window as any).electronAPI.openFile();
+    console.log(filePath);
+  }
+
   const handleOpenLocalFile = () => {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
@@ -106,7 +134,24 @@ export default function Home() {
   }
 
   return (
-    <main className="flex h-screen flex-row justify-center">
+    <main className="flex flex-col h-screen flex-row justify-center">
+
+
+      {/* 暂定：test */}
+      <div className={cn(
+        'w-12 h-12 rounded-full',
+        'fixed bottom-40 right-10 z-50 ',
+        'bg-black'
+      )}>
+        <span onClick={handleHybridTest} className={cn(
+          'w-12 h-12 rounded-full',
+          'flex items-center justify-center',
+          'cursor-pointer'
+        )}>
+          <OpenDoor theme="outline" size="24" fill="#ffffff" strokeWidth={3} />
+        </span>
+      </div>
+
       {/* 暂定：工具栏 */}
       <div className={cn(
         'w-12 h-12 rounded-full',
@@ -147,6 +192,106 @@ export default function Home() {
             <DropdownMenuItem>Subscription</DropdownMenuItem>
           </DropdownMenuContent> */}
         {/* </DropdownMenu> */}
+      </div>
+
+
+      {/* 标题栏 */}
+      <div
+        className={cn(
+          'flex items-center justify-between',
+          'w-full  bg-white shadow-md',
+          'select-none'
+        )}
+        style={{
+          'WebkitAppRegion': 'drag',
+        }}
+      >
+        <Menubar className="border-none w-1/3">
+          <MenubarMenu >
+            <MenubarTrigger style={{
+              'WebkitAppRegion': 'no-drag',
+            }}>文件</MenubarTrigger>
+            <MenubarContent>
+              <MenubarItem>新建窗口</MenubarItem>
+              <MenubarSeparator />
+              <MenubarItem>打开目录</MenubarItem>
+              <MenubarSeparator />
+              <MenubarItem>退出</MenubarItem>
+            </MenubarContent>
+          </MenubarMenu>
+          <MenubarMenu>
+            <MenubarTrigger style={{
+              'WebkitAppRegion': 'no-drag',
+            }}>编辑</MenubarTrigger>
+            <MenubarContent>
+              <MenubarItem>
+                撤回 <MenubarShortcut>⌘Z</MenubarShortcut>
+              </MenubarItem>
+              <MenubarItem>
+                重做 <MenubarShortcut>⇧⌘Z</MenubarShortcut>
+              </MenubarItem>
+              <MenubarSeparator />
+              <MenubarItem>剪切</MenubarItem>
+              <MenubarItem>复制</MenubarItem>
+              <MenubarItem>粘贴</MenubarItem>
+            </MenubarContent>
+          </MenubarMenu>
+          <MenubarMenu>
+            <MenubarTrigger style={{
+              'WebkitAppRegion': 'no-drag',
+            }}>设置</MenubarTrigger>
+            <MenubarContent>
+              <MenubarItem inset>首选项</MenubarItem>
+              <MenubarSeparator />
+              <MenubarItem inset>关于 InnoTe</MenubarItem>
+            </MenubarContent>
+          </MenubarMenu>
+        </Menubar>
+        <span
+          className={cn(
+            'w-1/3 rounded-full',
+            'flex items-center justify-center',
+            'cursor-pointer',
+          )}
+        >
+          Innote Editor
+        </span>
+
+
+        <ToggleGroup type="multiple" className="w-1/3 p-1">
+          <ToggleGroupItem value="bold" aria-label="Toggle bold" className="ml-auto" style={{
+            'WebkitAppRegion': 'no-drag',
+          }}
+            onClick={() => (window as any).electronAPI.app.minimize()}
+          >
+            <Minus theme="outline" size="20" fill="#000000" strokeWidth={3} />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="italic" aria-label="Toggle italic" style={{
+            'WebkitAppRegion': 'no-drag',
+          }}
+
+            onClick={async () => isMaximized
+              ? (window as any).electronAPI.app.unmaximize().then(() => setIsMaximized(false))
+              : (window as any).electronAPI.app.maximize().then(() => setIsMaximized(true))
+            }
+
+          >
+            {
+              isMaximized
+                ? <DifferenceSet theme="outline" size="20" fill="#000000" strokeWidth={3} />
+                : <FullScreen theme="outline" size="20" fill="#000000" strokeWidth={3} />
+            }
+
+          </ToggleGroupItem>
+          <ToggleGroupItem value="underline" aria-label="Toggle underline" style={{
+            'WebkitAppRegion': 'no-drag',
+          }}
+            onClick={() => (window as any).electronAPI.app.close()}
+
+          >
+            <Close theme="outline" size="20" fill="#000000" strokeWidth={3} />
+          </ToggleGroupItem>
+        </ToggleGroup>
       </div>
 
 
