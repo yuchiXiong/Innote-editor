@@ -15,12 +15,13 @@ import {
 } from "@/components/ui/toggle-group"
 import { useEffect, useState } from "react";
 import { Close, DifferenceSet, FullScreen, Minus } from "@icon-park/react";
+import { files, app } from "@/actions";
 
 const Header = () => {
   const [isMaximized, setIsMaximized] = useState<boolean>(false);
 
   useEffect(() => {
-    (window as any).electronAPI.app.isMaximized().then((res: boolean) => {
+    app.isMaximized().then((res: boolean) => {
       setIsMaximized(res);
     })
   }, []);
@@ -47,7 +48,7 @@ const Header = () => {
           <MenubarContent>
             <MenubarItem>新建窗口</MenubarItem>
             <MenubarSeparator />
-            <MenubarItem onClick={() => (window as any).electronAPI.openDirectory()} >打开目录</MenubarItem>
+            <MenubarItem onClick={files.openDirectory} >打开目录</MenubarItem>
             <MenubarSeparator />
             <MenubarItem>退出</MenubarItem>
           </MenubarContent>
@@ -95,7 +96,7 @@ const Header = () => {
         <ToggleGroupItem value="bold" aria-label="Toggle bold" className="ml-auto" style={{
           'WebkitAppRegion': 'no-drag',
         }}
-          onClick={() => (window as any).electronAPI.app.minimize()}
+          onClick={app.minimize}
         >
           <Minus theme="outline" size="20" fill="#000000" strokeWidth={3} />
         </ToggleGroupItem>
@@ -104,8 +105,8 @@ const Header = () => {
         }}
 
           onClick={async () => isMaximized
-            ? (window as any).electronAPI.app.unmaximize().then(() => setIsMaximized(false))
-            : (window as any).electronAPI.app.maximize().then(() => setIsMaximized(true))
+            ? app.unMaximize().then(() => setIsMaximized(false))
+            : app.maximize().then(() => setIsMaximized(true))
           }
 
         >
@@ -119,7 +120,7 @@ const Header = () => {
         <ToggleGroupItem value="underline" aria-label="Toggle underline" style={{
           'WebkitAppRegion': 'no-drag',
         }}
-          onClick={() => (window as any).electronAPI.app.close()}
+          onClick={app.close}
 
         >
           <Close theme="outline" size="20" fill="#000000" strokeWidth={3} />

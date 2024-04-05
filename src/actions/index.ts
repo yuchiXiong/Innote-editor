@@ -1,5 +1,4 @@
 import * as files from "./files";
+import * as app from "./app";
 
-export default {
-  ...files,
-};
+export { files, app };
