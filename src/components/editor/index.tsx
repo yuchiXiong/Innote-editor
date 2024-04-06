@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import marked from '@/utils/marked';
 import { cn } from "@/lib/utils";
 import { files } from "@/actions";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 
 export interface IEditorProps {
   currentDirectory: string;
@@ -31,9 +32,6 @@ const Editor = (props: IEditorProps) => {
     })
   }, [props.currentDirectory])
 
-  // useEffect(() => {
-    
-  // }, []);
 
   useEffect(() => {
     textAreaRef.current?.addEventListener('scroll', scrollHandler);
@@ -56,6 +54,8 @@ const Editor = (props: IEditorProps) => {
 
     if (textAreaRef.current) {
       textAreaRef.current.value = fileContent;
+      textAreaRef.current.scrollTop = 0;
+      textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
     }
   }
 
@@ -71,10 +71,11 @@ const Editor = (props: IEditorProps) => {
 
   const handleInput = async (e: React.FormEvent<HTMLTextAreaElement>) => {
     const originContent = e.currentTarget.value;
+    e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
     const _markedResult = await marked(originContent);
     setMarkedResult(_markedResult);
     generateToc();
-    localStorage.setItem('TEST_CONTENT', originContent);
+    // localStorage.setItem('TEST_CONTENT', originContent);
   }
 
 
@@ -108,39 +109,43 @@ const Editor = (props: IEditorProps) => {
       </ResizablePanel>
       <ResizableHandle withHandle />
       <ResizablePanel defaultSize={37}>
-
         {/* 编辑区 */}
-        <div className={cn(
-          'flex-1 h-full max-h-full',
-          'overflow-auto',
-          'border-r border-gray-200 border-solid'
-        )}>
+        <ScrollArea className="w-full h-full rounded-md border">
           <Textarea
             ref={textAreaRef}
             onInput={handleInput}
+            spellCheck={false}
             className={cn(
-              'w-full h-full',
+              'w-full min-h-screen',
               'px-8 py-4 box-border',
               'text-base text-[#263e7a] font-mono leading-7',
               'border-none shadow-none focus-visible:ring-0 focus-visible:shadow-none',
+              "resize-none"
             )} />
-        </div>
+
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
+
       </ResizablePanel>
       <ResizableHandle withHandle />
       <ResizablePanel defaultSize={37}>
         {/* 预览区 */}
-        <div
-          dangerouslySetInnerHTML={{ __html: markedResult }}
-          key={markedResult}
-          ref={markedResultRef}
+        <ScrollArea
           className={cn(
-            'markdown-body',
-            'flex-1 h-full max-h-full box-border',
-            'overflow-auto',
-            'px-8 pt-4 pb-24'
+            "w-full h-full rounded-md",
+            "preview-area-container"
           )}>
-
-        </div>
+          <div
+            dangerouslySetInnerHTML={{ __html: markedResult }}
+            key={markedResult}
+            ref={markedResultRef}
+            className={cn(
+              'markdown-body',
+              'w-full h-full box-border',
+              'px-8 pt-4 pb-24'
+            )} />
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
       </ResizablePanel>
       <ResizableHandle withHandle />
       <ResizablePanel defaultSize={16}>
