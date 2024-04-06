@@ -5,19 +5,32 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
 import { Textarea } from "@/components/ui/textarea";
+import FileTree, { IFileTreeItem } from '@/components/file-tree';
 import { useEffect, useRef, useState } from "react";
 import marked from '@/utils/marked';
 import { cn } from "@/lib/utils";
+import { files } from "@/actions";
 
-const Editor = () => {
+export interface IEditorProps {
+  currentDirectory: string;
+}
 
+const Editor = (props: IEditorProps) => {
+
+
+  const [fileList, setFileList] = useState<IFileTreeItem[]>([]);
   const [markedResult, setMarkedResult] = useState<string>('');
   const [toc, setTOC] = useState<string>('');
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
-
   const markedResultRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    files.getFileList(props.currentDirectory).then(res => {
+      setFileList(res);
+      console.log(res);
+    })
+  }, [props.currentDirectory])
 
   useEffect(() => {
     const fromLocal = localStorage.getItem('TEST_CONTENT') || '';
@@ -74,7 +87,23 @@ const Editor = () => {
 
   return (
     <ResizablePanelGroup direction="horizontal">
-      <ResizablePanel defaultSize={42}>
+      <ResizablePanel defaultSize={10}>
+        <div className={cn(
+          'flex-1 h-full max-h-full',
+          'overflow-auto',
+          'border-r border-gray-200 border-solid'
+        )}>
+          <FileTree
+            treeData={fileList}
+            reFresh={() => {
+              setFileList([...fileList]);
+            }}
+          />
+
+        </div>
+      </ResizablePanel>
+      <ResizableHandle withHandle />
+      <ResizablePanel defaultSize={37}>
 
         {/* 编辑区 */}
         <div className={cn(
@@ -94,7 +123,7 @@ const Editor = () => {
         </div>
       </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={42}>
+      <ResizablePanel defaultSize={37}>
         {/* 预览区 */}
         <div
           dangerouslySetInnerHTML={{ __html: markedResult }}

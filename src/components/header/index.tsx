@@ -17,7 +17,14 @@ import { useEffect, useState } from "react";
 import { Close, DifferenceSet, FullScreen, Minus } from "@icon-park/react";
 import { files, app } from "@/actions";
 
-const Header = () => {
+export interface IHeaderProps {
+  title: string,
+  setCurrentDirectory: (directory: string) => void;
+}
+
+const Header = (props: IHeaderProps) => {
+
+  const { title } = props;
   const [isMaximized, setIsMaximized] = useState<boolean>(false);
 
   useEffect(() => {
@@ -25,6 +32,12 @@ const Header = () => {
       setIsMaximized(res);
     })
   }, []);
+
+  const handleOpenDirectory = async () => {
+    const res = await files.openDirectory();
+    console.log(res);
+    props.setCurrentDirectory(res);
+  }
 
   return (
     <div
@@ -48,7 +61,7 @@ const Header = () => {
           <MenubarContent>
             <MenubarItem>新建窗口</MenubarItem>
             <MenubarSeparator />
-            <MenubarItem onClick={files.openDirectory} >打开目录</MenubarItem>
+            <MenubarItem onClick={handleOpenDirectory} >打开目录</MenubarItem>
             <MenubarSeparator />
             <MenubarItem>退出</MenubarItem>
           </MenubarContent>
@@ -88,7 +101,7 @@ const Header = () => {
           'cursor-pointer',
         )}
       >
-        Innote Editor
+        {title}
       </span>
 
 
