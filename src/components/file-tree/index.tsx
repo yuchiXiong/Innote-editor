@@ -6,6 +6,7 @@ import {
   Folder,
   CollapseButton,
 } from "@/components/ui/tree-view-api";
+import { MouseEvent } from "react";
 
 export interface IFileTreeProps {
   treeData: (TreeViewElement & {
@@ -40,7 +41,7 @@ const TreeItem = (props: IFileTreeProps) => {
 
 
   }
-  const handleItemClick = async (event: MouseEvent, element: IFileTreeItem) => {
+  const handleItemClick = async (event: MouseEvent<HTMLLIElement, MouseEvent>, element: IFileTreeItem) => {
     event.stopPropagation();
     event.preventDefault();
     if (element.isDirectory) {
