@@ -45,19 +45,14 @@ const Header = (props: IHeaderProps) => {
         cn(
           'flex items-center justify-between',
           'w-full  bg-white shadow-md',
-          'select-none'
+          'select-none',
+          'webkitAppRegionDrag'
         )
-      }
-      style={{
-        'WebkitAppRegion': 'drag',
-      }
       }
     >
       <Menubar className="border-none w-1/3">
         <MenubarMenu >
-          <MenubarTrigger style={{
-            'WebkitAppRegion': 'no-drag',
-          }}>文件</MenubarTrigger>
+          <MenubarTrigger className="webkitAppRegionNoDrag">文件</MenubarTrigger>
           <MenubarContent>
             <MenubarItem>新建窗口</MenubarItem>
             <MenubarSeparator />
@@ -67,9 +62,7 @@ const Header = (props: IHeaderProps) => {
           </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>
-          <MenubarTrigger style={{
-            'WebkitAppRegion': 'no-drag',
-          }}>编辑</MenubarTrigger>
+          <MenubarTrigger className="webkitAppRegionNoDrag">编辑</MenubarTrigger>
           <MenubarContent>
             <MenubarItem>
               撤回 <MenubarShortcut>⌘Z</MenubarShortcut>
@@ -84,9 +77,7 @@ const Header = (props: IHeaderProps) => {
           </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>
-          <MenubarTrigger style={{
-            'WebkitAppRegion': 'no-drag',
-          }}>设置</MenubarTrigger>
+          <MenubarTrigger className="webkitAppRegionNoDrag">设置</MenubarTrigger>
           <MenubarContent>
             <MenubarItem inset>首选项</MenubarItem>
             <MenubarSeparator />
@@ -106,17 +97,13 @@ const Header = (props: IHeaderProps) => {
 
 
       <ToggleGroup type="multiple" className="w-1/3 p-1">
-        <ToggleGroupItem value="bold" aria-label="Toggle bold" className="ml-auto" style={{
-          'WebkitAppRegion': 'no-drag',
-        }}
+        <ToggleGroupItem value="bold" aria-label="Toggle bold" className="ml-auto webkitAppRegionNoDrag"
           onClick={app.minimize}
         >
           <Minus theme="outline" size="20" fill="#000000" strokeWidth={3} />
         </ToggleGroupItem>
-        <ToggleGroupItem value="italic" aria-label="Toggle italic" style={{
-          'WebkitAppRegion': 'no-drag',
-        }}
-
+        <ToggleGroupItem value="italic" aria-label="Toggle italic"
+          className="webkitAppRegionNoDrag"
           onClick={async () => isMaximized
             ? app.unMaximize().then(() => setIsMaximized(false))
             : app.maximize().then(() => setIsMaximized(true))
@@ -130,9 +117,8 @@ const Header = (props: IHeaderProps) => {
           }
 
         </ToggleGroupItem>
-        <ToggleGroupItem value="underline" aria-label="Toggle underline" style={{
-          'WebkitAppRegion': 'no-drag',
-        }}
+        <ToggleGroupItem value="underline" aria-label="Toggle underline"
+          className="webkitAppRegionNoDrag"
           onClick={app.close}
 
         >
