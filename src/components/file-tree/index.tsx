@@ -13,18 +13,19 @@ export interface IFileTreeProps {
     path: string;
     children?: IFileTreeProps["treeData"];
   })[];
+  afterFileOpen: (content: string) => void;
   reFresh: () => void;
 }
 
 export type IFileTreeItem = IFileTreeProps["treeData"][number];
 
 const TreeItem = (props: IFileTreeProps) => {
-  const { treeData, reFresh } = props;
+  const { treeData, reFresh, afterFileOpen } = props;
 
-  const handleDirectoryClick = async (event: Event, element: IFileTreeItem) => {
-    event.stopPropagation();
-    event.preventDefault();
-    
+  const handleDirectoryClick = async (element: IFileTreeItem) => {
+    console.log('click dir', element)
+
+
     if (!element.isDirectory) return;
 
     const elementPath = element.path.replace(/\//g, '\\') + '\\' + element.name;
@@ -39,24 +40,45 @@ const TreeItem = (props: IFileTreeProps) => {
 
 
   }
+  const handleItemClick = async (event: MouseEvent, element: IFileTreeItem) => {
+    event.stopPropagation();
+    event.preventDefault();
+    if (element.isDirectory) {
+      handleDirectoryClick(element);
+    } else {
+      handleFileClick(element);
+    }
+  }
+
+
+  const handleFileClick = async (element: IFileTreeItem) => {
+    console.log('click file')
+    const content = await files.getFileContent(element.path + '\\' + element.name) || '';
+    props.afterFileOpen(content);
+  }
 
   return (
     <ul className="w-full space-y-1">
       {treeData.map((element) => (
-        <li key={element.id} className="w-full space-y-2">
+        <li
+          key={element.id}
+          className="w-full space-y-2"
+          onClick={(e) => handleItemClick(e, element)}
+
+        >
           {element.isDirectory ? (
             <Folder
               element={element.name}
               id={element.id}
               isSelectable={element.isSelectable}
               className="px-px pr-1"
-              onClick={(e) => handleDirectoryClick(e, element)}
             >
               <TreeItem
                 key={element.id}
                 aria-label={`folder ${element.name}`}
                 treeData={element.children || []}
                 reFresh={reFresh}
+                afterFileOpen={afterFileOpen}
               />
             </Folder>
           ) : (
@@ -76,7 +98,7 @@ const TreeItem = (props: IFileTreeProps) => {
 };
 
 const FileTree = (props: IFileTreeProps) => {
-  const { treeData } = props;
+  const { treeData, reFresh, afterFileOpen } = props;
 
   const sortedTreeData = [...treeData].sort((a, b) => {
     return Number(b.isDirectory) - Number(a.isDirectory);
@@ -88,6 +110,7 @@ const FileTree = (props: IFileTreeProps) => {
         <TreeItem
           key={element.id}
           treeData={[element]}
+          afterFileOpen={afterFileOpen}
           reFresh={props.reFresh}
         />
       ))}

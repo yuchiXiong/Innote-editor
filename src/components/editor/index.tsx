@@ -17,7 +17,6 @@ export interface IEditorProps {
 
 const Editor = (props: IEditorProps) => {
 
-
   const [fileList, setFileList] = useState<IFileTreeItem[]>([]);
   const [markedResult, setMarkedResult] = useState<string>('');
   const [toc, setTOC] = useState<string>('');
@@ -32,21 +31,9 @@ const Editor = (props: IEditorProps) => {
     })
   }, [props.currentDirectory])
 
-  useEffect(() => {
-    const fromLocal = localStorage.getItem('TEST_CONTENT') || '';
-    const markedAsync = async () => {
-      return await marked(fromLocal);
-    };
-
-    markedAsync().then(res => {
-      setMarkedResult(res);
-      generateToc();
-    });
-
-    if (textAreaRef.current) {
-      textAreaRef.current.value = fromLocal;
-    }
-  }, []);
+  // useEffect(() => {
+    
+  // }, []);
 
   useEffect(() => {
     textAreaRef.current?.addEventListener('scroll', scrollHandler);
@@ -55,6 +42,22 @@ const Editor = (props: IEditorProps) => {
       textAreaRef.current?.removeEventListener('scroll', scrollHandler);
     }
   }, []);
+
+  const updateEditor = (fileContent: string) => {
+    // const fromLocal = localStorage.getItem('TEST_CONTENT') || '';
+    const markedAsync = async () => {
+      return await marked(fileContent);
+    };
+
+    markedAsync().then(res => {
+      setMarkedResult(res);
+      generateToc();
+    });
+
+    if (textAreaRef.current) {
+      textAreaRef.current.value = fileContent;
+    }
+  }
 
   const scrollHandler = (e: Event) => {
     const scrollTop = (e.target as HTMLTextAreaElement).scrollTop;
@@ -98,6 +101,7 @@ const Editor = (props: IEditorProps) => {
             reFresh={() => {
               setFileList([...fileList]);
             }}
+            afterFileOpen={updateEditor}
           />
 
         </div>

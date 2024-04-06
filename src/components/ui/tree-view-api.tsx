@@ -229,7 +229,7 @@ const Folder = forwardRef<
       >
         <AccordionPrimitive.Trigger
           className={cn(
-            `flex items-center text-base !px-2 rounded-md`,
+            `flex items-center justify-start text-base !px-2 rounded-md`,
             "text-[#00000099]",
             className,
             {
@@ -244,7 +244,7 @@ const Folder = forwardRef<
           {expendedItems?.includes(id)
             ? openIcon ?? <FolderOpen className="h-4 w-4 mr-1 flex justify-center items-center" fill="#0000008c" strokeWidth={3} />
             : closeIcon ?? <FolderClose className="h-4 w-4 mr-1 flex justify-center items-center" fill="#0000008c" strokeWidth={3} />}
-          <span>{element}</span>
+          <span className="w-full text-left line-clamp-1">{element}</span>
         </AccordionPrimitive.Trigger>
         <AccordionPrimitive.Content className="text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down relative overflow-hidden h-full">
           {element && indicator && (
@@ -319,7 +319,7 @@ const File = forwardRef<
             fill="#0000008c"
             strokeWidth={3}
           />}
-          {children}
+          <span className="w-full text-left line-clamp-1">{element}</span>
         </AccordionPrimitive.Trigger>
       </AccordionPrimitive.Item>
     );

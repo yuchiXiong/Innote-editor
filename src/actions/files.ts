@@ -8,6 +8,7 @@ export const getFileList = (path: string): Promise<IFileTreeItem[]> => {
   return window.electronAPI
     .getFileList(encodeURIComponent(path))
     .then((result) => {
+      console.log(result);
       return result.map((file) => ({
         id: file,
         name: file,
