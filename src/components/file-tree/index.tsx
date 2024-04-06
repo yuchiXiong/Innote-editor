@@ -41,7 +41,7 @@ const TreeItem = (props: IFileTreeProps) => {
 
 
   }
-  const handleItemClick = async (event: MouseEvent<HTMLLIElement, MouseEvent>, element: IFileTreeItem) => {
+  const handleItemClick = async (event: MouseEvent<HTMLLIElement>, element: IFileTreeItem) => {
     event.stopPropagation();
     event.preventDefault();
     if (element.isDirectory) {
