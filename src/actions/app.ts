@@ -5,3 +5,7 @@ export const unMaximize = () => window.electronAPI.app.unMaximize();
 export const isMaximized = () => window.electronAPI.app.isMaximized();
 export const onMaximized = (callback: () => void) => window.electronAPI.app.onMaximized(callback);
 export const onUnMaximized = (callback: () => void) => window.electronAPI.app.onUnMaximized(callback);
+export const onEnterFullScreen = (callback: () => void) => window.electronAPI.app.onEnterFullScreen(callback);
+export const onLeaveFullScreen = (callback: () => void) => window.electronAPI.app.onLeaveFullScreen(callback);
+export const isFullScreen = () => window.electronAPI.app.isFullScreen();
+export const isSimpleFullScreen = () => window.electronAPI.app.isSimpleFullScreen();

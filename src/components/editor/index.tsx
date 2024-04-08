@@ -207,7 +207,7 @@ const Editor = (props: IEditorProps) => {
         <div
           className={cn(
             'marked-toc',
-            'pl-4 py-2 pr-16',
+            'py-2 px-4',
             'max-w-max max-h-max',
           )}
           dangerouslySetInnerHTML={{ __html: toc }}

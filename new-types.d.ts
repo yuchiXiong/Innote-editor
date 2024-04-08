@@ -10,8 +10,12 @@ export interface IElectronAPI {
     maximize: () => Promise<void>;
     unMaximize: () => Promise<void>;
     isMaximized: () => Promise<boolean>;
+    isFullScreen: () => Promise<boolean>;
+    isSimpleFullScreen: () => Promise<boolean>;
     onMaximized: (callback: () => void) => void;
     onUnMaximized: (callback: () => void) => void;
+    onEnterFullScreen: (callback: () => void) => void;
+    onLeaveFullScreen: (callback: () => void) => void;
   };
   files: {
     openDirectory: () => Promise<string>;
