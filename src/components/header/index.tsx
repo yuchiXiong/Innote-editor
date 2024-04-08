@@ -34,6 +34,11 @@ const Header = (props: IHeaderProps) => {
     })
   }, []);
 
+  useEffect(() => {
+    app.onMaximized(() => setIsMaximized(true))
+    app.onUnMaximized(() => setIsMaximized(false));
+  }, []);
+
   const handleOpenDirectory = async () => {
     const res = await files.openDirectory();
     props.setCurrentDirectory(res);
@@ -50,6 +55,7 @@ const Header = (props: IHeaderProps) => {
           'webkitAppRegionDrag'
         )
       }
+      onDoubleClick={isMaximized ? app.unMaximize : app.maximize}
     >
       <Menubar className="border-none w-1/3">
         <MenubarMenu >
@@ -105,11 +111,7 @@ const Header = (props: IHeaderProps) => {
         </ToggleGroupItem>
         <ToggleGroupItem value="italic" aria-label="Toggle italic"
           className="webkitAppRegionNoDrag"
-          onClick={async () => isMaximized
-            ? app.unMaximize().then(() => setIsMaximized(false))
-            : app.maximize().then(() => setIsMaximized(true))
-          }
-
+          onClick={isMaximized ? app.unMaximize : app.maximize}
         >
           {
             isMaximized

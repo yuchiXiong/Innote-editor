@@ -10,12 +10,12 @@ export interface IElectronAPI {
     maximize: () => Promise<void>;
     unMaximize: () => Promise<void>;
     isMaximized: () => Promise<boolean>;
+    onMaximized: (callback: () => void) => void;
+    onUnMaximized: (callback: () => void) => void;
   };
   files: {
     openDirectory: () => Promise<string>;
-    getFileList: (
-      path: string
-    ) => Promise<
+    getFileList: (path: string) => Promise<
       {
         fileName: string;
         isDirectory: boolean;
