@@ -6,14 +6,20 @@ export const openDirectory = () => {
 
 export const getFileList = (path: string): Promise<IFileTreeItem[]> => {
   return window.electronAPI.files.getFileList(path).then((result) => {
-    console.log(result);
     return result.map((file) => ({
-      id: file,
-      name: file,
+      id: file.fileName,
+      name: file.fileName,
       isSelectable: true,
-      isDirectory: !file.endsWith(".md"),
+      isDirectory: file.isDirectory,
       path,
-      children: [],
+      children: file.children.map((child) => ({
+        id: child.fileName,
+        name: child.fileName,
+        isSelectable: true,
+        isDirectory: child.isDirectory,
+        path: pathJoin([path, child.fileName]),
+        children: [],
+      })),
     }));
   });
 };

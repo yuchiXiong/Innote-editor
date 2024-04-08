@@ -13,7 +13,15 @@ export interface IElectronAPI {
   };
   files: {
     openDirectory: () => Promise<string>;
-    getFileList: (path: string) => Promise<string[]>;
+    getFileList: (
+      path: string
+    ) => Promise<
+      {
+        fileName: string;
+        isDirectory: boolean;
+        children: { fileName: string; isDirectory: boolean; children: [] }[];
+      }[]
+    >;
     getFileContent: (path: string) => Promise<string>;
     saveFileContent: (path: string, content: string) => Promise<void>;
     pathJoin: (paths: string[]) => string;

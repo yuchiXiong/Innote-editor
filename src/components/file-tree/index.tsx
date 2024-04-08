@@ -25,22 +25,12 @@ const TreeItem = (props: IFileTreeProps) => {
   const { treeData, reFresh, afterFileOpen } = props;
 
   const handleDirectoryClick = async (element: IFileTreeItem) => {
-    console.log('click dir', element)
-
-
     if (!element.isDirectory) return;
     
     const elementPath = files.pathJoin([element.path, element.name])
-    console.log(elementPath)
-
-    files.getFileList(elementPath).then(async (files) => {
-      console.log(files)
-    });
-
     element.children = (await files.getFileList(elementPath)) || [];
+
     props.reFresh();
-
-
   }
   const handleItemClick = async (event: MouseEvent<HTMLLIElement>, element: IFileTreeItem) => {
     event.stopPropagation();
@@ -54,7 +44,6 @@ const TreeItem = (props: IFileTreeProps) => {
 
 
   const handleFileClick = async (element: IFileTreeItem) => {
-    console.log('click file')
     const filePath = files.pathJoin([element.path, element.name])
     const content = await files.getFileContent(filePath) || '';
     localStorage.setItem(CURRENT_OPEN_FILE_PATH, filePath);
@@ -68,7 +57,6 @@ const TreeItem = (props: IFileTreeProps) => {
           key={element.id}
           className="w-full space-y-2"
           onClick={(e) => handleItemClick(e, element)}
-
         >
           {element.isDirectory ? (
             <Folder

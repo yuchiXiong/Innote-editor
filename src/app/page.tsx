@@ -10,7 +10,6 @@ export interface IStore {
 }
 
 const reducer = (state: IStore, action: any): IStore => {
-  console.log(action)
   switch (action.type) {
     case 'SET_CURRENT_DIRECTORY':
       return {

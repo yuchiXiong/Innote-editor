@@ -27,21 +27,15 @@ const Editor = (props: IEditorProps) => {
   const [currentOpenFilePath, setCurrentOpenFilePath] = useState<string>('');
   const [toc, setTOC] = useState<string>('');
   const [debounceFnFlag, setDebounceFnFlag] = useState<number>(0);
-  const [_, forceUpdateCounter] = useState<number>(0);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const markedResultRef = useRef<HTMLDivElement>(null);
-  // const layoutRef = useRef<[number, number, number, number]>([10, 37, 37, 16]);
 
   useDebounce(() => {
     if (debounceFnFlag === 0) return;
     const content = textAreaRef.current?.value || '';
-    console.log(currentOpenFilePath)
     files.saveFileContent(currentOpenFilePath, content);
   }, 200, [debounceFnFlag]);
 
-  const forceUpdate = useCallback(() => {
-    forceUpdateCounter(prev => prev + 1);
-  }, []);
   const debounceSaveFileContent = useCallback(() => {
     setDebounceFnFlag(debounceFnFlag => debounceFnFlag + 1);
   }, []);
@@ -83,12 +77,6 @@ const Editor = (props: IEditorProps) => {
 
 
   useEffect(() => {
-    // layoutRef.current = JSON.parse(localStorage.getItem('react-resizable-panels:layout')
-    //   || '[10, 37, 37, 16]'
-    // ) as [number, number, number, number];
-    // console.log('useEffect', localStorage.getItem('react-resizable-panels:layout')
-    //   || '[10, 37, 37, 16]')
-    // forceUpdate();
     setCurrentOpenFilePath(localStorage.getItem(CURRENT_OPEN_FILE_PATH) || '');
     textAreaRef.current?.addEventListener('scroll', scrollHandler);
 
@@ -129,7 +117,6 @@ const Editor = (props: IEditorProps) => {
   const onLayout = (sizes: number[]) => {
     const key = 'react-resizable-panels:layout';
     const value = JSON.stringify(sizes);
-    console.log(key, value);
     if (textAreaRef.current) {
       textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
     }
