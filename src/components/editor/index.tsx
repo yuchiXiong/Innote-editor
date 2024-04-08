@@ -13,7 +13,7 @@ import { files } from "@/actions";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { useDebounce } from 'react-use';
 import { CURRENT_OPEN_FILE_PATH } from "@/const/storage";
-
+import { toast } from "sonner"
 export interface IEditorProps {
   currentDirectory: string;
   defaultLayout: [number, number, number, number]
@@ -22,6 +22,7 @@ export interface IEditorProps {
 const Editor = (props: IEditorProps) => {
 
   const { defaultLayout } = props;
+
   const [fileList, setFileList] = useState<IFileTreeItem[]>([]);
   const [markedResult, setMarkedResult] = useState<string>('');
   const [currentOpenFilePath, setCurrentOpenFilePath] = useState<string>('');
@@ -79,11 +80,29 @@ const Editor = (props: IEditorProps) => {
   useEffect(() => {
     setCurrentOpenFilePath(localStorage.getItem(CURRENT_OPEN_FILE_PATH) || '');
     textAreaRef.current?.addEventListener('scroll', scrollHandler);
+    window.addEventListener("keydown", handleSaveTips);
+
 
     return () => {
       textAreaRef.current?.removeEventListener('scroll', scrollHandler);
+      window.removeEventListener("keydown", handleSaveTips);
     }
   }, []);
+
+  const handleSaveTips = (e: KeyboardEvent) => {
+    const isWindows = navigator.platform.startsWith('Win');
+    const isMac = navigator.platform.startsWith('Mac');
+
+    const isSave = (isWindows && e.key === 's' && e.ctrlKey) || (isMac && e.key === 's' && e.metaKey);
+
+    if (isSave) {
+      e.preventDefault();
+      debounceSaveFileContent();
+      toast("别担心！", {
+        description: "InnoTe 会自动保存你的文件哦！",
+      })
+    }
+  }
 
   const scrollHandler = (e: Event) => {
     const scrollTop = (e.target as HTMLTextAreaElement).scrollTop;
