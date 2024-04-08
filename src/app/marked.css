@@ -1,3 +1,6 @@
+.preview-area-container div[data-radix-scroll-area-viewport=""] > div{
+  display: block !important;
+}
 .markdown-body {
   @charset "UTF-8";
 }

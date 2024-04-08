@@ -16,6 +16,7 @@ import {
 import { useEffect, useState } from "react";
 import { Close, DifferenceSet, FullScreen, Minus } from "@icon-park/react";
 import { files, app } from "@/actions";
+import { CURRENT_OPEN_DIRECTORY_KEY } from "@/const/storage";
 
 export interface IHeaderProps {
   title: string,
@@ -35,8 +36,8 @@ const Header = (props: IHeaderProps) => {
 
   const handleOpenDirectory = async () => {
     const res = await files.openDirectory();
-    console.log(res);
     props.setCurrentDirectory(res);
+    localStorage.setItem(CURRENT_OPEN_DIRECTORY_KEY, res);
   }
 
   return (

@@ -6,6 +6,7 @@ import {
   Folder,
   CollapseButton,
 } from "@/components/ui/tree-view-api";
+import { CURRENT_OPEN_FILE_PATH } from "@/const/storage";
 import { MouseEvent } from "react";
 
 export interface IFileTreeProps {
@@ -56,6 +57,7 @@ const TreeItem = (props: IFileTreeProps) => {
     console.log('click file')
     const filePath = files.pathJoin([element.path, element.name])
     const content = await files.getFileContent(filePath) || '';
+    localStorage.setItem(CURRENT_OPEN_FILE_PATH, filePath);
     props.afterFileOpen(filePath, content);
   }
 
