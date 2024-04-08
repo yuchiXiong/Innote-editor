@@ -3,6 +3,7 @@ export interface IElectronAPI {
     node: () => string;
     chrome: () => string;
     electron: () => string;
+    InnoTe:() => string;
   };
   app: {
     close: () => Promise<void>;

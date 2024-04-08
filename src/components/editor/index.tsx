@@ -44,7 +44,6 @@ const Editor = (props: IEditorProps) => {
   useEffect(() => {
     files.getFileList(props.currentDirectory).then(res => {
       setFileList(res);
-      console.log(res);
     })
   }, [props.currentDirectory])
 
@@ -116,6 +115,7 @@ const Editor = (props: IEditorProps) => {
 
   const handleInput = async (e: React.FormEvent<HTMLTextAreaElement>) => {
     const originContent = e.currentTarget.value;
+    debounceSaveFileContent();
     e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
     const _markedResult = await marked(originContent);
     setMarkedResult(_markedResult);
