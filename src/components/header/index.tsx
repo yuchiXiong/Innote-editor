@@ -61,14 +61,14 @@ const Header = (props: IHeaderProps) => {
         <MenubarMenu >
           <MenubarTrigger className="webkitAppRegionNoDrag">文件</MenubarTrigger>
           <MenubarContent>
-            <MenubarItem>新建窗口</MenubarItem>
-            <MenubarSeparator />
+            {/* <MenubarItem>新建窗口</MenubarItem> */}
+            {/* <MenubarSeparator /> */}
             <MenubarItem onClick={handleOpenDirectory} >打开目录</MenubarItem>
             <MenubarSeparator />
-            <MenubarItem>退出</MenubarItem>
+            <MenubarItem onClick={app.close}>退出</MenubarItem>
           </MenubarContent>
         </MenubarMenu>
-        <MenubarMenu>
+        {/* <MenubarMenu>
           <MenubarTrigger className="webkitAppRegionNoDrag">编辑</MenubarTrigger>
           <MenubarContent>
             <MenubarItem>
@@ -82,15 +82,15 @@ const Header = (props: IHeaderProps) => {
             <MenubarItem>复制</MenubarItem>
             <MenubarItem>粘贴</MenubarItem>
           </MenubarContent>
-        </MenubarMenu>
-        <MenubarMenu>
+        </MenubarMenu> */}
+        {/* <MenubarMenu>
           <MenubarTrigger className="webkitAppRegionNoDrag">设置</MenubarTrigger>
           <MenubarContent>
             <MenubarItem inset>首选项</MenubarItem>
             <MenubarSeparator />
             <MenubarItem inset>关于 InnoTe</MenubarItem>
           </MenubarContent>
-        </MenubarMenu>
+        </MenubarMenu> */}
       </Menubar>
       <span
         className={cn(
