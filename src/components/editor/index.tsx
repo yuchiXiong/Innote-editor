@@ -19,18 +19,27 @@ export interface IEditorProps {
 
 const Editor = (props: IEditorProps) => {
 
+  const layout = JSON.parse(localStorage.getItem('react-resizable-panels:layout')
+    || '[10, 37, 37, 16]'
+  );
   const [fileList, setFileList] = useState<IFileTreeItem[]>([]);
   const [markedResult, setMarkedResult] = useState<string>('');
   const [currentOpenFilePath, setCurrentOpenFilePath] = useState<string>('');
   const [toc, setTOC] = useState<string>('');
+  const [debounceFnFlag, setDebounceFnFlag] = useState<number>(0);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const markedResultRef = useRef<HTMLDivElement>(null);
 
   useDebounce(() => {
+    if (debounceFnFlag === 0) return;
     const content = textAreaRef.current?.value || '';
     console.log(currentOpenFilePath)
     files.saveFileContent(currentOpenFilePath, content);
-  }, 200, [markedResult]);
+  }, 200, [debounceFnFlag]);
+
+  const debounceSaveFileContent = () => {
+    setDebounceFnFlag(debounceFnFlag => debounceFnFlag + 1);
+  }
 
   useEffect(() => {
     files.getFileList(props.currentDirectory).then(res => {
@@ -50,6 +59,7 @@ const Editor = (props: IEditorProps) => {
 
   const updateEditor = (filePath: string, fileContent: string) => {
     // const fromLocal = localStorage.getItem('TEST_CONTENT') || '';
+    debounceSaveFileContent();
     const markedAsync = async () => {
       return await marked(fileContent);
     };
@@ -97,9 +107,15 @@ const Editor = (props: IEditorProps) => {
     setTOC(removeThreeLevel);
   }
 
+  const onLayout = (sizes: number[]) => {
+    const key = 'react-resizable-panels:layout';
+    const value = JSON.stringify(sizes);
+    localStorage.setItem(key, value);
+  };
+
   return (
-    <ResizablePanelGroup direction="horizontal">
-      <ResizablePanel defaultSize={10}>
+    <ResizablePanelGroup direction="horizontal" onLayout={onLayout}>
+      <ResizablePanel defaultSize={layout[0]}>
         <div className={cn(
           'flex-1 h-full max-h-full',
           'overflow-auto',
@@ -116,7 +132,7 @@ const Editor = (props: IEditorProps) => {
         </div>
       </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={37}>
+      <ResizablePanel defaultSize={layout[1]}>
         {/* 编辑区 */}
         <ScrollArea className="w-full h-full rounded-md border">
           <Textarea
@@ -136,7 +152,7 @@ const Editor = (props: IEditorProps) => {
 
       </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={37}>
+      <ResizablePanel defaultSize={layout[2]}>
         {/* 预览区 */}
         <ScrollArea
           className={cn(
@@ -156,7 +172,7 @@ const Editor = (props: IEditorProps) => {
         </ScrollArea>
       </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={16}>
+      <ResizablePanel defaultSize={layout[3]}>
         {/* 目录 */}
         <div
           className={cn(
