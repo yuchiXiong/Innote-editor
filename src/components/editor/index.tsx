@@ -13,7 +13,8 @@ import { files } from "@/actions";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { useDebounce } from 'react-use';
 import { CURRENT_OPEN_FILE_PATH } from "@/const/storage";
-import { toast } from "sonner"
+import { toast } from "sonner";
+
 export interface IEditorProps {
   currentDirectory: string;
   defaultLayout: [number, number, number, number]
@@ -48,8 +49,6 @@ const Editor = (props: IEditorProps) => {
   }, [props.currentDirectory])
 
   const updateEditor = useCallback((filePath: string, fileContent: string) => {
-    // const fromLocal = localStorage.getItem('TEST_CONTENT') || '';
-    debounceSaveFileContent();
     const markedAsync = async () => {
       return await marked(fileContent);
     };
@@ -58,12 +57,11 @@ const Editor = (props: IEditorProps) => {
       setMarkedResult(res);
       generateToc();
     });
-
+    setCurrentOpenFilePath(filePath);
     if (textAreaRef.current) {
       textAreaRef.current.value = fileContent;
       textAreaRef.current.scrollTop = 0;
       textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
-      setCurrentOpenFilePath(filePath);
     }
   }, [debounceSaveFileContent])
 
@@ -134,6 +132,8 @@ const Editor = (props: IEditorProps) => {
   }
 
   const onLayout = (sizes: number[]) => {
+    if (!currentOpenFilePath.endsWith('.md')) return;
+
     const key = 'react-resizable-panels:layout';
     const value = JSON.stringify(sizes);
     if (textAreaRef.current) {
@@ -161,59 +161,85 @@ const Editor = (props: IEditorProps) => {
         </div>
       </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={defaultLayout[1]}>
-        {/* 编辑区 */}
-        <ScrollArea className="w-full h-full rounded-md border">
-          <Textarea
-            ref={textAreaRef}
-            onInput={handleInput}
-            spellCheck={false}
-            key={currentOpenFilePath}
-            className={cn(
-              'w-full min-h-screen',
-              'px-8 py-4 box-border',
-              'text-base text-[#263e7a] font-mono leading-7',
-              'border-none shadow-none focus-visible:ring-0 focus-visible:shadow-none',
-              "resize-none"
-            )}
-          />
-          <ScrollBar orientation="vertical" />
-        </ScrollArea>
+      {
+        currentOpenFilePath.endsWith('.md') ? (
+          <>
+            <ResizablePanel defaultSize={defaultLayout[1]}>
+              {/* 编辑区 */}
+              <ScrollArea className="w-full h-full rounded-md border">
+                <Textarea
+                  ref={textAreaRef}
+                  onInput={handleInput}
+                  spellCheck={false}
+                  key={currentOpenFilePath}
+                  className={cn(
+                    'w-full min-h-screen',
+                    'px-8 py-4 box-border',
+                    'text-base text-[#263e7a] font-mono leading-7',
+                    'border-none shadow-none focus-visible:ring-0 focus-visible:shadow-none',
+                    "resize-none"
+                  )}
+                />
+                <ScrollBar orientation="vertical" />
+              </ScrollArea>
 
-      </ResizablePanel>
-      <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={defaultLayout[2]}>
-        {/* 预览区 */}
-        <ScrollArea
-          className={cn(
-            "w-full h-full",
-            "preview-area-container"
-          )}>
-          <div
-            dangerouslySetInnerHTML={{ __html: markedResult }}
-            key={markedResult}
-            ref={markedResultRef}
-            className={cn(
-              'markdown-body',
-              'w-full h-full box-border',
-              'px-8 pt-4 pb-24'
-            )} />
-          <ScrollBar orientation="vertical" />
-        </ScrollArea>
-      </ResizablePanel>
-      <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={defaultLayout[3]}>
-        {/* 目录 */}
-        <div
-          className={cn(
-            'marked-toc',
-            'py-2 px-4',
-            'max-w-max max-h-max',
-          )}
-          dangerouslySetInnerHTML={{ __html: toc }}
-        />
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+            <ResizablePanel defaultSize={defaultLayout[2]}>
+              {/* 预览区 */}
+              <ScrollArea
+                className={cn(
+                  "w-full h-full",
+                  "preview-area-container"
+                )}>
+                <div
+                  dangerouslySetInnerHTML={{ __html: markedResult }}
+                  key={markedResult}
+                  ref={markedResultRef}
+                  className={cn(
+                    'markdown-body',
+                    'w-full h-full box-border',
+                    'px-8 pt-4 pb-24'
+                  )} />
+                <ScrollBar orientation="vertical" />
+              </ScrollArea>
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+            <ResizablePanel defaultSize={defaultLayout[3]}>
+              {/* 目录 */}
+              <div
+                className={cn(
+                  'marked-toc',
+                  'py-2 px-4',
+                  'max-w-max max-h-max',
+                )}
+                dangerouslySetInnerHTML={{ __html: toc }}
+              />
 
-      </ResizablePanel>
+            </ResizablePanel>
+          </>
+        ) : (
+          <ResizablePanel>
+            <section className="text-gray-600 body-font">
+              <div className="container mx-auto flex px-5 py-24 items-center justify-center flex-col">
+                <img className="mb-10 object-cover object-center rounded" alt="Logo" src="https://dummyimage.com/368x307" />
+                <div className="text-center lg:w-2/3 w-full">
+                  <h1 className="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900">InnoTe Editor</h1>
+                  {
+                    currentOpenFilePath === ''
+                      ? (<p className="my-4 leading-relaxed">{currentOpenFilePath}点击「文件 - 打开目录」立即开始编写你的 Markdown 文件</p>)
+                      : (<p className="my-4 leading-relaxed">{currentOpenFilePath}暂不支持该文件类型哦~</p>)
+                  }
+                  {/* <div className="flex justify-center">
+                    <button className="inline-flex text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg">Button</button>
+                    <button className="ml-4 inline-flex text-gray-700 bg-gray-100 border-0 py-2 px-6 focus:outline-none hover:bg-gray-200 rounded text-lg">Button</button>
+                  </div> */}
+                </div>
+              </div>
+            </section>
+          </ResizablePanel>
+        )
+      }
     </ResizablePanelGroup>
   )
 }
