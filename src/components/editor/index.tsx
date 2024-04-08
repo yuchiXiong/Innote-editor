@@ -149,14 +149,15 @@ const Editor = (props: IEditorProps) => {
             ref={textAreaRef}
             onInput={handleInput}
             spellCheck={false}
+            key={currentOpenFilePath}
             className={cn(
               'w-full min-h-screen',
               'px-8 py-4 box-border',
               'text-base text-[#263e7a] font-mono leading-7',
               'border-none shadow-none focus-visible:ring-0 focus-visible:shadow-none',
               "resize-none"
-            )} />
-
+            )}
+          />
           <ScrollBar orientation="vertical" />
         </ScrollArea>
 
