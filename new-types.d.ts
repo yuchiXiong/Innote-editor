@@ -8,12 +8,16 @@ export interface IElectronAPI {
     close: () => Promise<void>;
     minimize: () => Promise<void>;
     maximize: () => Promise<void>;
-    unmaximize: () => Promise<void>;
+    unMaximize: () => Promise<void>;
     isMaximized: () => Promise<boolean>;
   };
-  openDirectory: () => Promise<string>;
-  getFileList: (path: string) => Promise<string[]>;
-  getFileContent: (path: string) => Promise<string>;
+  files: {
+    openDirectory: () => Promise<string>;
+    getFileList: (path: string) => Promise<string[]>;
+    getFileContent: (path: string) => Promise<string>;
+    saveFileContent: (path: string, content: string) => Promise<void>;
+    pathJoin: (paths: string[]) => string;
+  };
 }
 
 declare global {

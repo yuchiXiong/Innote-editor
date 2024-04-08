@@ -11,6 +11,7 @@ import marked from '@/utils/marked';
 import { cn } from "@/lib/utils";
 import { files } from "@/actions";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { useDebounce } from 'react-use';
 
 export interface IEditorProps {
   currentDirectory: string;
@@ -20,10 +21,16 @@ const Editor = (props: IEditorProps) => {
 
   const [fileList, setFileList] = useState<IFileTreeItem[]>([]);
   const [markedResult, setMarkedResult] = useState<string>('');
+  const [currentOpenFilePath, setCurrentOpenFilePath] = useState<string>('');
   const [toc, setTOC] = useState<string>('');
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-
   const markedResultRef = useRef<HTMLDivElement>(null);
+
+  useDebounce(() => {
+    const content = textAreaRef.current?.value || '';
+    console.log(currentOpenFilePath)
+    files.saveFileContent(currentOpenFilePath, content);
+  }, 200, [markedResult]);
 
   useEffect(() => {
     files.getFileList(props.currentDirectory).then(res => {
@@ -41,7 +48,7 @@ const Editor = (props: IEditorProps) => {
     }
   }, []);
 
-  const updateEditor = (fileContent: string) => {
+  const updateEditor = (filePath: string, fileContent: string) => {
     // const fromLocal = localStorage.getItem('TEST_CONTENT') || '';
     const markedAsync = async () => {
       return await marked(fileContent);
@@ -56,6 +63,7 @@ const Editor = (props: IEditorProps) => {
       textAreaRef.current.value = fileContent;
       textAreaRef.current.scrollTop = 0;
       textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
+      setCurrentOpenFilePath(filePath);
     }
   }
 

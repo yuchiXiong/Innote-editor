@@ -14,7 +14,7 @@ export interface IFileTreeProps {
     path: string;
     children?: IFileTreeProps["treeData"];
   })[];
-  afterFileOpen: (content: string) => void;
+  afterFileOpen: (filePath: string, content: string) => void;
   reFresh: () => void;
 }
 
@@ -28,8 +28,8 @@ const TreeItem = (props: IFileTreeProps) => {
 
 
     if (!element.isDirectory) return;
-
-    const elementPath = element.path.replace(/\//g, '\\') + '\\' + element.name;
+    
+    const elementPath = files.pathJoin([element.path, element.name])
     console.log(elementPath)
 
     files.getFileList(elementPath).then(async (files) => {
@@ -54,8 +54,9 @@ const TreeItem = (props: IFileTreeProps) => {
 
   const handleFileClick = async (element: IFileTreeItem) => {
     console.log('click file')
-    const content = await files.getFileContent(element.path + '\\' + element.name) || '';
-    props.afterFileOpen(content);
+    const filePath = files.pathJoin([element.path, element.name])
+    const content = await files.getFileContent(filePath) || '';
+    props.afterFileOpen(filePath, content);
   }
 
   return (
