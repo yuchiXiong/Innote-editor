@@ -16,17 +16,22 @@ import { CURRENT_OPEN_FILE_PATH } from "@/const/storage";
 import { toast } from "sonner";
 
 export interface IEditorProps {
+  currentOpenFile: string;
   currentDirectory: string;
-  defaultLayout: [number, number, number, number]
+  defaultLayout: [number, number, number, number];
+  setCurrentOpenFile: (filePath: string) => void;
 }
 
 const Editor = (props: IEditorProps) => {
 
-  const { defaultLayout } = props;
+  const { 
+    defaultLayout,
+    currentOpenFile,
+    setCurrentOpenFile
+   } = props;
 
   const [fileList, setFileList] = useState<IFileTreeItem[]>([]);
   const [markedResult, setMarkedResult] = useState<string>('');
-  const [currentOpenFilePath, setCurrentOpenFilePath] = useState<string>('');
   const [toc, setTOC] = useState<string>('');
   const [debounceFnFlag, setDebounceFnFlag] = useState<number>(0);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -35,7 +40,7 @@ const Editor = (props: IEditorProps) => {
   useDebounce(() => {
     if (debounceFnFlag === 0) return;
     const content = textAreaRef.current?.value || '';
-    files.saveFileContent(currentOpenFilePath, content);
+    files.saveFileContent(currentOpenFile, content);
   }, 200, [debounceFnFlag]);
 
   const debounceSaveFileContent = useCallback(() => {
@@ -57,7 +62,7 @@ const Editor = (props: IEditorProps) => {
       setMarkedResult(res);
       generateToc();
     });
-    setCurrentOpenFilePath(filePath);
+    setCurrentOpenFile(filePath);
     if (textAreaRef.current) {
       textAreaRef.current.value = fileContent;
       textAreaRef.current.scrollTop = 0;
@@ -66,16 +71,16 @@ const Editor = (props: IEditorProps) => {
   }, [debounceSaveFileContent])
 
   useEffect(() => {
-    if (currentOpenFilePath) {
-      files.getFileContent(currentOpenFilePath).then(res => {
-        updateEditor(currentOpenFilePath, res);
+    if (currentOpenFile) {
+      files.getFileContent(currentOpenFile).then(res => {
+        updateEditor(currentOpenFile, res);
       })
     }
-  }, [currentOpenFilePath, updateEditor]);
+  }, [currentOpenFile, updateEditor]);
 
 
   useEffect(() => {
-    setCurrentOpenFilePath(localStorage.getItem(CURRENT_OPEN_FILE_PATH) || '');
+    setCurrentOpenFile(localStorage.getItem(CURRENT_OPEN_FILE_PATH) || '');
     textAreaRef.current?.addEventListener('scroll', scrollHandler);
     window.addEventListener("keydown", handleSaveTips);
 
@@ -132,7 +137,7 @@ const Editor = (props: IEditorProps) => {
   }
 
   const onLayout = (sizes: number[]) => {
-    if (!currentOpenFilePath.endsWith('.md')) return;
+    if (!currentOpenFile.endsWith('.md')) return;
 
     const key = 'react-resizable-panels:layout';
     const value = JSON.stringify(sizes);
@@ -162,7 +167,7 @@ const Editor = (props: IEditorProps) => {
       </ResizablePanel>
       <ResizableHandle withHandle />
       {
-        currentOpenFilePath.endsWith('.md') ? (
+        currentOpenFile.endsWith('.md') ? (
           <>
             <ResizablePanel defaultSize={defaultLayout[1]}>
               {/* 编辑区 */}
@@ -171,7 +176,7 @@ const Editor = (props: IEditorProps) => {
                   ref={textAreaRef}
                   onInput={handleInput}
                   spellCheck={false}
-                  key={currentOpenFilePath}
+                  key={currentOpenFile}
                   className={cn(
                     'w-full min-h-screen',
                     'px-8 py-4 box-border',
@@ -226,9 +231,9 @@ const Editor = (props: IEditorProps) => {
                 <div className="text-center lg:w-2/3 w-full">
                   <h1 className="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900">InnoTe Editor</h1>
                   {
-                    currentOpenFilePath === ''
-                      ? (<p className="my-4 leading-relaxed">{currentOpenFilePath}点击「文件 - 打开目录」立即开始编写你的 Markdown 文件</p>)
-                      : (<p className="my-4 leading-relaxed">{currentOpenFilePath}暂不支持该文件类型哦~</p>)
+                    currentOpenFile === ''
+                      ? (<p className="my-4 leading-relaxed">点击「文件 - 打开目录」立即开始编写你的 Markdown 文件</p>)
+                      : (<p className="my-4 leading-relaxed">暂不支持该文件类型哦~</p>)
                   }
                   {/* <div className="flex justify-center">
                     <button className="inline-flex text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg">Button</button>

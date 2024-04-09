@@ -139,14 +139,13 @@ const Header = (props: IHeaderProps) => {
       </Menubar>
       <span
         className={cn(
-          'w-1/3 rounded-full',
-          'flex items-center justify-center',
-          'cursor-pointer',
+          'w-full flex items-center justify-center text-center',
+          'text-sm font-medium text-gray-700',
+          'line-clamp-1',
         )}
       >
         {title}
       </span>
-
 
       <ToggleGroup type="multiple" className="w-1/3 p-1">
         <ToggleGroupItem value="bold" aria-label="Toggle bold" className="ml-auto webkitAppRegionNoDrag"
