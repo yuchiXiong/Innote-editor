@@ -97,7 +97,7 @@ const FileTree = (props: IFileTreeProps) => {
   })
 
   return (
-    <Tree className="w-full bg-background p-2" indicator={true}>
+    <Tree className="w-full p-2" indicator={true}>
       {sortedTreeData.map((element, _) => (
         <TreeItem
           key={element.id}

@@ -2,9 +2,8 @@
 
 import Header from "@/components/header";
 import Editor from "@/components/editor";
-import { ReducerWithoutAction, useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { CURRENT_OPEN_DIRECTORY_KEY } from "@/const/storage";
-import { app, versions } from '@/actions';
 
 export interface IStore {
   currentDirectory: string;
@@ -58,7 +57,7 @@ export default function Home() {
       store.currentOpenFile.split('/').pop(),
       store.currentDirectory
     ].join(' - ')
-    : 'InnoTe Editor'
+    : 'InnoTe Editor';
 
   return (
     isReady ? <main className="flex flex-col h-screen justify-center">

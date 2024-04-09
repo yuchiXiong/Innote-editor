@@ -24,11 +24,11 @@ export interface IEditorProps {
 
 const Editor = (props: IEditorProps) => {
 
-  const { 
+  const {
     defaultLayout,
     currentOpenFile,
     setCurrentOpenFile
-   } = props;
+  } = props;
 
   const [fileList, setFileList] = useState<IFileTreeItem[]>([]);
   const [markedResult, setMarkedResult] = useState<string>('');
@@ -81,12 +81,9 @@ const Editor = (props: IEditorProps) => {
 
   useEffect(() => {
     setCurrentOpenFile(localStorage.getItem(CURRENT_OPEN_FILE_PATH) || '');
-    textAreaRef.current?.addEventListener('scroll', scrollHandler);
     window.addEventListener("keydown", handleSaveTips);
 
-
     return () => {
-      textAreaRef.current?.removeEventListener('scroll', scrollHandler);
       window.removeEventListener("keydown", handleSaveTips);
     }
   }, []);
@@ -103,16 +100,6 @@ const Editor = (props: IEditorProps) => {
       toast("别担心！", {
         description: "InnoTe 会自动保存你的文件哦！",
       })
-    }
-  }
-
-  const scrollHandler = (e: Event) => {
-    const scrollTop = (e.target as HTMLTextAreaElement).scrollTop;
-    const fullHeight = (e.target as HTMLTextAreaElement).scrollHeight;
-
-    if (markedResultRef.current) {
-      const markedResultHeight = markedResultRef.current.scrollHeight;
-      markedResultRef.current.scrollTop = markedResultHeight * (scrollTop) / fullHeight;
     }
   }
 
@@ -153,7 +140,6 @@ const Editor = (props: IEditorProps) => {
         <div className={cn(
           'flex-1 h-full max-h-full',
           'overflow-auto',
-          'border-r border-gray-200 border-solid'
         )}>
           <FileTree
             treeData={fileList}
@@ -171,7 +157,7 @@ const Editor = (props: IEditorProps) => {
           <>
             <ResizablePanel defaultSize={defaultLayout[1]}>
               {/* 编辑区 */}
-              <ScrollArea className="w-full h-full rounded-md border">
+              <ScrollArea className="w-full h-full">
                 <Textarea
                   ref={textAreaRef}
                   onInput={handleInput}
@@ -182,12 +168,12 @@ const Editor = (props: IEditorProps) => {
                     'px-8 py-4 box-border',
                     'text-base text-[#263e7a] font-mono leading-7',
                     'border-none shadow-none focus-visible:ring-0 focus-visible:shadow-none',
-                    "resize-none"
+                    "resize-none",
+                    "input-textarea",
                   )}
                 />
                 <ScrollBar orientation="vertical" />
               </ScrollArea>
-
             </ResizablePanel>
             <ResizableHandle withHandle />
             <ResizablePanel defaultSize={defaultLayout[2]}>

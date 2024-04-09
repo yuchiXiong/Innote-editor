@@ -95,14 +95,15 @@ const Header = (props: IHeaderProps) => {
       className={
         cn(
           'flex items-center justify-between',
-          'w-full  bg-white shadow-md',
+          'w-full bg-white',
+          'shadow-md',
           'select-none',
           'webkitAppRegionDrag'
         )
       }
       onDoubleClick={toggleMaximize}
     >
-      <Menubar className="border-none w-1/3">
+      <Menubar className="border-none shadow-none w-1/3">
         <MenubarMenu >
           <MenubarTrigger className="webkitAppRegionNoDrag">文件</MenubarTrigger>
           <MenubarContent>

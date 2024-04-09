@@ -1,4 +1,21 @@
-.preview-area-container div[data-radix-scroll-area-viewport=""] > div{
+.preview-area-container,
+.input-textarea,
+.marked-toc {
+  background-image: linear-gradient(90deg, rgba(60, 10, 30, 0.05) 3%, transparent 0),
+    linear-gradient(1turn, rgba(60, 10, 30, 0.05) 3%, transparent 0);
+  background-size: 20px 20px;
+  background-position: 50%;
+}
+
+.input-textarea {
+  background-position: top right;
+}
+
+.preview-area-container {
+  background-position: top right;
+}
+
+.preview-area-container div[data-radix-scroll-area-viewport=""] > div {
   display: block !important;
 }
 .markdown-body {
