@@ -77,11 +77,10 @@ const fetchLinkOpenGraph = async (
 marked.use({
   renderer: {
     heading(text: string, level: number) {
-      console.log(text, level)
       const rawHeading = `<h${level}>${text}</h${level}>`;
       const id = `heading_${md5(rawHeading)}`;
 
-      return `<h${level} id="${id}">${text}</h${level}>\n`;
+      return `<h${level} id="${id}" class="transition-all duration-1000 ease-in-out">${text}</h${level}>\n`;
     },
   },
   walkTokens(token) {

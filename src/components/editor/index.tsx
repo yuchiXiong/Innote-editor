@@ -134,8 +134,13 @@ const Editor = (props: IEditorProps) => {
 
   const handleTocClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
-    console.log(target.id);
-    document.querySelector(`#${target.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    const previewTarget = document.querySelector(`#${target.id}`);
+
+    previewTarget?.classList.add('bg-[#5a67d880]');
+    previewTarget?.scrollIntoView({ behavior: "smooth", block: "center" });
+    setTimeout(() => {
+      previewTarget?.classList.remove('bg-[#5a67d880]');
+    }, 500);
   }
 
   const onLayout = (sizes: number[]) => {
