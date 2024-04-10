@@ -70,9 +70,15 @@ const TreeItem = (props: IFileTreeProps) => {
   }
 
   const handleFileClick = async (element: IFileTreeItem) => {
-    const content = await files.getFileContent(element.path) || '';
     localStorage.setItem(CURRENT_OPEN_FILE_PATH, element.path);
-    props.afterFileOpen(element.path, content);
+
+    if (element.name.endsWith('.md')) {
+      const content = await files.getFileContent(element.path) || '';
+      props.afterFileOpen(element.path, content);
+    } else {
+      props.afterFileOpen(element.path, '');
+    }
+
   }
 
   return (
@@ -149,7 +155,7 @@ const FileTree = (props: Omit<IFileTreeProps, 'setExpandedItemMap' | 'expandedIt
         indicator={true}
         initialExpendedItems={expendedItems}
         initialSelectedId={currentOpenFile}
-        
+
       >
         {sortedTreeData.map((element, _) => (
           <TreeItem

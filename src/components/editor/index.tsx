@@ -60,6 +60,9 @@ const Editor = (props: IEditorProps) => {
   }, [props.currentDirectory])
 
   const updateEditor = useCallback((filePath: string, fileContent: string) => {
+    setCurrentOpenFile(filePath);
+    if (!filePath.endsWith('.md')) return;
+
     const markedAsync = async () => {
       return await marked(fileContent);
     };
@@ -68,7 +71,6 @@ const Editor = (props: IEditorProps) => {
       setMarkedResult(res);
       generateToc();
     });
-    setCurrentOpenFile(filePath);
     if (textAreaRef.current) {
       textAreaRef.current.value = fileContent;
       textAreaRef.current.scrollTop = 0;
@@ -239,25 +241,57 @@ const Editor = (props: IEditorProps) => {
             </ResizablePanel>
           </>
         ) : (
-          <ResizablePanel>
-            <section className="text-gray-600 body-font">
-              <div className="container mx-auto flex px-5 py-24 items-center justify-center flex-col">
-                <img className="mb-10 object-cover object-center rounded" alt="Logo" src="https://dummyimage.com/368x307" />
-                <div className="text-center lg:w-2/3 w-full">
-                  <h1 className="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900">InnoTe Editor</h1>
-                  {
-                    currentOpenFile === ''
-                      ? (<p className="my-4 leading-relaxed">点击「文件 - 打开目录」立即开始编写你的 Markdown 文件</p>)
-                      : (<p className="my-4 leading-relaxed">暂不支持该文件类型哦~</p>)
-                  }
-                  {/* <div className="flex justify-center">
-                    <button className="inline-flex text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg">Button</button>
-                    <button className="ml-4 inline-flex text-gray-700 bg-gray-100 border-0 py-2 px-6 focus:outline-none hover:bg-gray-200 rounded text-lg">Button</button>
-                  </div> */}
+          currentOpenFile.endsWith('.png') || currentOpenFile.endsWith('.jpg') || currentOpenFile.endsWith('.jpeg')
+            ? (
+              <ResizablePanel className="px-4 py-2">
+                <div className={cn(
+                  'w-full h-full',
+                  'flex justify-center items-center',
+                  'overflow-hidden',
+                  'relative'
+                )}>
+                  <img
+                    src={'atom://innote?filepath=' + encodeURIComponent(currentOpenFile)}
+                    className={cn(
+                      'w-full',
+                      'rounded',
+                      'absolute',
+                      'blur-xl'
+                    )}
+                  />
+                  <img
+                    src={'atom://innote?filepath=' + encodeURIComponent(currentOpenFile)}
+                    className={cn(
+                      'max-w-full max-h-full',
+                      'rounded',
+                      'absolute',
+                    )}
+                  />
                 </div>
-              </div>
-            </section>
-          </ResizablePanel>
+              </ResizablePanel>
+            )
+            : (
+              <ResizablePanel>
+                <section className="text-gray-600 body-font">
+                  <div className="container mx-auto flex px-5 py-24 items-center justify-center flex-col">
+                    <img className="mb-10 object-cover object-center rounded" alt="Logo" src="https://dummyimage.com/368x307" />
+                    <div className="text-center lg:w-2/3 w-full">
+                      <h1 className="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900">InnoTe Editor</h1>
+                      {
+                        currentOpenFile === ''
+                          ? (<p className="my-4 leading-relaxed">点击「文件 - 打开目录」立即开始编写你的 Markdown 文件</p>)
+                          : (<p className="my-4 leading-relaxed">暂不支持该文件类型哦~</p>)
+                      }
+                      {/* <div className="flex justify-center">
+                  <button className="inline-flex text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg">Button</button>
+                  <button className="ml-4 inline-flex text-gray-700 bg-gray-100 border-0 py-2 px-6 focus:outline-none hover:bg-gray-200 rounded text-lg">Button</button>
+                </div> */}
+                    </div>
+                  </div>
+                </section>
+              </ResizablePanel>
+            )
+
         )
       }
     </ResizablePanelGroup>
