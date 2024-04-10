@@ -19,8 +19,10 @@ import md5 from "md5";
 export interface IEditorProps {
   currentOpenFile: string;
   currentDirectory: string;
+  fileList: IFileTreeItem[];
   defaultLayout: [number, number, number, number];
   setCurrentOpenFile: (filePath: string) => void;
+  setFileList: (fileList: IFileTreeItem[]) => void;
 }
 
 const Editor = (props: IEditorProps) => {
@@ -28,10 +30,11 @@ const Editor = (props: IEditorProps) => {
   const {
     defaultLayout,
     currentOpenFile,
-    setCurrentOpenFile
+    fileList,
+    setCurrentOpenFile,
+    setFileList
   } = props;
 
-  const [fileList, setFileList] = useState<IFileTreeItem[]>([]);
   const [markedResult, setMarkedResult] = useState<string>('');
   const [toc, setTOC] = useState<string>('');
   const [debounceFnFlag, setDebounceFnFlag] = useState<number>(0);
@@ -49,6 +52,8 @@ const Editor = (props: IEditorProps) => {
   }, []);
 
   useEffect(() => {
+    if (fileList.length !== 0) return;
+
     files.getFileList(props.currentDirectory).then(res => {
       setFileList(res);
     })
@@ -154,6 +159,10 @@ const Editor = (props: IEditorProps) => {
     localStorage.setItem(key, value);
   };
 
+  const reFreshFileTree = () => {
+    setFileList([...fileList]);
+  }
+
   return (
     <ResizablePanelGroup direction="horizontal" onLayout={onLayout}>
       <ResizablePanel defaultSize={defaultLayout[0]}>
@@ -163,9 +172,8 @@ const Editor = (props: IEditorProps) => {
         )}>
           <FileTree
             treeData={fileList}
-            reFresh={() => {
-              setFileList([...fileList]);
-            }}
+            reFresh={reFreshFileTree}
+            currentOpenFile={currentOpenFile}
             afterFileOpen={updateEditor}
           />
 
