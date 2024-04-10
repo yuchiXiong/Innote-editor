@@ -14,6 +14,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { useDebounce } from 'react-use';
 import { CURRENT_OPEN_FILE_PATH } from "@/const/storage";
 import { toast } from "sonner";
+import md5 from "md5";
 
 export interface IEditorProps {
   currentOpenFile: string;
@@ -113,14 +114,28 @@ const Editor = (props: IEditorProps) => {
     // localStorage.setItem('TEST_CONTENT', originContent);
   }
 
-  const generateToc = async () => {
-    const content = textAreaRef.current?.value;
-    const toc = content?.split('\n').filter(i => i.startsWith('#')).join('\n') || '';
-    const result = await marked(toc);
+  const generateToc = async (): Promise<void> => {
+    const content = textAreaRef.current?.value || '';
+    const result = await marked(content);
     const removeThreeLevel = result.split('\n').filter(i => {
-      return i.startsWith('<h1') || i.startsWith('<h2') || i.startsWith('<h3');
+      return i.startsWith('<h1') || i.startsWith('<h2') || i.startsWith('<h3')
+    }).map(heading => {
+      if (heading.startsWith('<h1') || heading.startsWith('<h2')) return heading;
+
+      const defaultStyle = 'pl-2 border-l-4 border-white border-solid';
+      const hoverStyle = 'hover:bg-[#5a67d820] hover:border-[#5a67d8]';
+      const style = `${defaultStyle} ${hoverStyle}`;
+
+      const headingWithHover = heading.replace('<h3 ', `<h3 class="${style}" `)
+      return headingWithHover;
     }).join('\n');
     setTOC(removeThreeLevel);
+  }
+
+  const handleTocClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    console.log(target.id);
+    document.querySelector(`#${target.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   const onLayout = (sizes: number[]) => {
@@ -205,6 +220,7 @@ const Editor = (props: IEditorProps) => {
                   'max-w-max max-h-max',
                 )}
                 dangerouslySetInnerHTML={{ __html: toc }}
+                onClick={handleTocClick}
               />
 
             </ResizablePanel>

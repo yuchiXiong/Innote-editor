@@ -88,6 +88,22 @@
 .markdown-body ul {
   padding-left: 2em;
 }
+
+.markdown-body h1 {
+  font-size: 2em;
+}
+.markdown-body h2 {
+  font-size: 1.5em;
+}
+.markdown-body h3 {
+  font-size: 1.17em;
+}
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  font-size: 1em;
+}
+
 .markdown-body h1,
 .markdown-body h2 {
   border-color: #5a67d8;
@@ -112,6 +128,8 @@
 .markdown-body h6 {
   margin-bottom: 16px;
   line-height: 1.25;
+  display: block;
+  font-weight: bold;
 }
 .markdown-body blockquote {
   padding-top: 0.5rem;
@@ -375,17 +393,24 @@
   width: 600px !important;
 }
 
-.marked-toc h1 {
-  @apply pl-0 text-black font-medium;
-  @apply mt-1 mb-1;
+.marked-toc h1,
+.marked-toc h2,
+.marked-toc h3 {
+  @apply text-gray-500;
+  @apply line-clamp-1;
 }
 
+.marked-toc h1 {
+  @apply font-medium;
+  @apply text-gray-800;
+  @apply mb-2;
+}
 .marked-toc h2 {
-  @apply pl-4 text-gray-500 text-sm;
-  @apply mt-1 mb-1;
+  @apply text-base;
+  @apply my-1;
 }
 
 .marked-toc h3 {
-  @apply pl-8 text-gray-500 text-sm;
-  @apply mt-1 mb-1;
+  @apply px-4 py-1 text-sm;
+  @apply cursor-pointer;
 }

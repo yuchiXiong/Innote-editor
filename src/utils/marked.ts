@@ -4,6 +4,7 @@ import * as cheerio from "cheerio";
 import { markedHighlight } from "marked-highlight";
 import hljs from "highlight.js";
 import { nanoid } from "nanoid";
+import md5 from "md5";
 
 const cleanUrl = (href: string) => {
   try {
@@ -74,6 +75,15 @@ const fetchLinkOpenGraph = async (
 };
 
 marked.use({
+  renderer: {
+    heading(text: string, level: number) {
+      console.log(text, level)
+      const rawHeading = `<h${level}>${text}</h${level}>`;
+      const id = `heading_${md5(rawHeading)}`;
+
+      return `<h${level} id="${id}">${text}</h${level}>\n`;
+    },
+  },
   walkTokens(token) {
     if (token.type === "link") {
       const cleanHref = cleanUrl(token.href);
