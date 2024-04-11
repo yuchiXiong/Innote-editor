@@ -3,47 +3,21 @@
 import Header from "@/components/header";
 import Editor from "@/components/editor";
 import { useCallback, useEffect, useReducer, useState } from "react";
-import { CURRENT_OPEN_DIRECTORY_KEY, CURRENT_OPEN_FILE_PATH, FILE_LIST_BEFORE_CLOSE_KEY, OPENED_DIRECTORIES_KEY } from "@/const/storage";
+import { CURRENT_OPEN_DIRECTORY_KEY, CURRENT_OPEN_FILE_PATH, FILE_LIST_BEFORE_CLOSE_KEY, OPENED_DIRECTORIES_KEY } from "@/constants/storage";
 import { IFileTreeItem } from "@/components/file-tree";
-
-export interface IStore {
-  currentDirectory: string;
-  currentOpenFile: string;
-  fileList: IFileTreeItem[];
-}
-
-const reducer = (state: IStore, action: any): IStore => {
-  switch (action.type) {
-    case 'SET_CURRENT_DIRECTORY':
-      return {
-        ...state,
-        currentDirectory: action.currentDirectory,
-      }
-    case 'SET_CURRENT_OPEN_FILE':
-      return {
-        ...state,
-        currentOpenFile: action.currentOpenFile,
-      }
-    case 'SET_FILE_LIST':
-      return {
-        ...state,
-        fileList: action.fileList,
-      }
-    default:
-      return state;
-
-  }
-}
+import { useSelector, useDispatch, InnoTeProvider } from "@/stores";
 
 export default function Home() {
 
+  const dispatch = useDispatch();
+  const currentDirectory = useSelector((state) => state.currentDirectory);
+  const currentOpenFile = useSelector((state) => state.currentOpenFile);
+  const fileList = useSelector((state) => state.fileList);
+
+  // console.log('currentDirectory', currentDirectory, 'currentOpenFile', currentOpenFile, 'fileList', fileList)
+
   const [defaultLayout, setDefaultLayout] = useState<[number, number, number, number]>([10, 37, 37, 16]);
   const [isReady, setIsReady] = useState(false);
-  const [store, dispatch] = useReducer(reducer, {
-    currentDirectory: '',
-    currentOpenFile: '',
-    fileList: [],
-  } as IStore);
 
   const setCurrentDirectory = (directory: string) => {
     dispatch({ type: 'SET_CURRENT_DIRECTORY', currentDirectory: directory });
@@ -71,10 +45,10 @@ export default function Home() {
     setIsReady(true);
   }, []);
 
-  const pageTitle = store.currentDirectory
+  const pageTitle = currentDirectory
     ? [
-      store.currentOpenFile.split('/').pop(),
-      store.currentDirectory
+      currentOpenFile.split('/').pop(),
+      currentDirectory
     ].join(' - ')
     : 'InnoTe Editor';
 
@@ -86,9 +60,9 @@ export default function Home() {
       />
       <Editor
         defaultLayout={defaultLayout}
-        fileList={store.fileList}
-        currentOpenFile={store.currentOpenFile}
-        currentDirectory={store.currentDirectory}
+        fileList={fileList}
+        currentOpenFile={currentOpenFile}
+        currentDirectory={currentDirectory}
         setFileList={setFileList}
         setCurrentOpenFile={setCurrentOpenFile}
       />

@@ -16,7 +16,7 @@ import {
 import { useEffect, useState } from "react";
 import { Close, DifferenceSet, FullScreen, Minus } from "@icon-park/react";
 import { files, app } from "@/actions";
-import { CURRENT_OPEN_DIRECTORY_KEY } from "@/const/storage";
+import { CURRENT_OPEN_DIRECTORY_KEY } from "@/constants/storage";
 
 export interface IHeaderProps {
   title: string,

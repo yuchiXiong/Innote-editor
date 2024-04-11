@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { files } from "@/actions";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { useDebounce } from 'react-use';
-import { CURRENT_OPEN_FILE_PATH } from "@/const/storage";
+import { CURRENT_OPEN_FILE_PATH } from "@/constants/storage";
 import { toast } from "sonner";
 import md5 from "md5";
 

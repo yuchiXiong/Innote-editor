@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "../lib/utils";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerTaster } from "@/components/ui/sonner"
+import { InnoTeProvider } from "@/stores";
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -24,7 +25,11 @@ export default function RootLayout({
       <body className={cn(
         "min-h-screen bg-background font-sans antialiased",
         fontSans.variable
-      )}>{children}</body>
+      )}>
+        <InnoTeProvider>
+          {children}
+        </InnoTeProvider>
+      </body>
       <Toaster />
       <SonnerTaster />
     </html>

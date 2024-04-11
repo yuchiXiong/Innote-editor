@@ -6,7 +6,7 @@ import {
   Folder,
   CollapseButton,
 } from "@/components/ui/tree-view-api";
-import { CURRENT_OPEN_FILE_PATH, OPENED_DIRECTORIES_KEY } from "@/const/storage";
+import { CURRENT_OPEN_FILE_PATH, OPENED_DIRECTORIES_KEY } from "@/constants/storage";
 import { MouseEvent, useEffect, useMemo, useState } from "react";
 
 export interface IFileTreeProps {
