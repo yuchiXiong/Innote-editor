@@ -15,7 +15,7 @@ export interface IFileTreeProps {
     path: string;
     children?: IFileTreeProps["treeData"];
   })[];
-  afterFileOpen: (filePath: string, content: string) => void;
+  afterFileOpen: (file: { name: string; path: string }, content: string) => void;
   reFresh: () => void;
   expandedItemMap: Record<string, boolean>;
   setExpandedItemMap: (expandedItemMap: Record<string, boolean>) => void;
@@ -70,13 +70,22 @@ const TreeItem = (props: IFileTreeProps) => {
   }
 
   const handleFileClick = async (element: IFileTreeItem) => {
-    localStorage.setItem(CURRENT_OPEN_FILE_PATH, element.path);
+    localStorage.setItem(CURRENT_OPEN_FILE_PATH, JSON.stringify({
+      name: element.name,
+      path: element.path,
+    }));
 
     if (element.name.endsWith('.md')) {
       const content = await files.getFileContent(element.path) || '';
-      props.afterFileOpen(element.path, content);
+      props.afterFileOpen({
+        name: element.name,
+        path: element.path,
+      }, content);
     } else {
-      props.afterFileOpen(element.path, '');
+      props.afterFileOpen({
+        name: element.name,
+        path: element.path,
+      }, '');
     }
 
   }
@@ -123,7 +132,10 @@ const TreeItem = (props: IFileTreeProps) => {
 };
 
 const FileTree = (props: Omit<IFileTreeProps, 'setExpandedItemMap' | 'expandedItemMap'> & {
-  currentOpenFile: string
+  currentOpenFile: {
+    path: string;
+    name: string;
+  }
 }) => {
   const { treeData, reFresh, afterFileOpen, currentOpenFile } = props;
 
@@ -154,8 +166,7 @@ const FileTree = (props: Omit<IFileTreeProps, 'setExpandedItemMap' | 'expandedIt
         className="w-full p-2"
         indicator={true}
         initialExpendedItems={expendedItems}
-        initialSelectedId={currentOpenFile}
-
+        initialSelectedId={currentOpenFile.path}
       >
         {sortedTreeData.map((element, _) => (
           <TreeItem

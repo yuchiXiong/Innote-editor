@@ -4,7 +4,10 @@ import { Dispatch, createContext, useContext, useReducer } from "react";
 
 export interface IStore {
   currentDirectory: string;
-  currentOpenFile: string;
+  currentOpenFile: {
+    name: string;
+    path: string;
+  };
   fileList: IFileTreeItem[];
 }
 
@@ -38,7 +41,10 @@ const reducer = (state: IStore, action: any): IStore => {
 
 const initialState: IStore = {
   currentDirectory: '',
-  currentOpenFile: '',
+  currentOpenFile: {
+    name: '',
+    path: '',
+  },
   fileList: [],
 }
 

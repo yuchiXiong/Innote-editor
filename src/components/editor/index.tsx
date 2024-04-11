@@ -14,14 +14,13 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { useDebounce } from 'react-use';
 import { CURRENT_OPEN_FILE_PATH } from "@/constants/storage";
 import { toast } from "sonner";
-import md5 from "md5";
 
 export interface IEditorProps {
-  currentOpenFile: string;
+  currentOpenFile: { name: string; path: string };
   currentDirectory: string;
   fileList: IFileTreeItem[];
   defaultLayout: [number, number, number, number];
-  setCurrentOpenFile: (filePath: string) => void;
+  setCurrentOpenFile: (file: { name: string; path: string }) => void;
   setFileList: (fileList: IFileTreeItem[]) => void;
 }
 
@@ -44,7 +43,7 @@ const Editor = (props: IEditorProps) => {
   useDebounce(() => {
     if (debounceFnFlag === 0) return;
     const content = textAreaRef.current?.value || '';
-    files.saveFileContent(currentOpenFile, content);
+    files.saveFileContent(currentOpenFile.path, content);
   }, 200, [debounceFnFlag]);
 
   const debounceSaveFileContent = useCallback(() => {
@@ -59,9 +58,9 @@ const Editor = (props: IEditorProps) => {
     })
   }, [props.currentDirectory])
 
-  const updateEditor = useCallback((filePath: string, fileContent: string) => {
-    setCurrentOpenFile(filePath);
-    if (!filePath.endsWith('.md')) return;
+  const updateEditor = useCallback((file: { name: string; path: string }, fileContent: string) => {
+    setCurrentOpenFile(file);
+    if (!file.name.endsWith('.md')) return;
 
     const markedAsync = async () => {
       return await marked(fileContent);
@@ -79,8 +78,8 @@ const Editor = (props: IEditorProps) => {
   }, [debounceSaveFileContent])
 
   useEffect(() => {
-    if (currentOpenFile) {
-      files.getFileContent(currentOpenFile).then(res => {
+    if (currentOpenFile.path) {
+      files.getFileContent(currentOpenFile.path).then(res => {
         updateEditor(currentOpenFile, res);
       })
     }
@@ -88,7 +87,7 @@ const Editor = (props: IEditorProps) => {
 
 
   useEffect(() => {
-    setCurrentOpenFile(localStorage.getItem(CURRENT_OPEN_FILE_PATH) || '');
+    setCurrentOpenFile(JSON.parse(localStorage.getItem(CURRENT_OPEN_FILE_PATH) || '{"name":"","path":""}'));
     window.addEventListener("keydown", handleSaveTips);
 
     return () => {
@@ -151,7 +150,7 @@ const Editor = (props: IEditorProps) => {
   }
 
   const onLayout = (sizes: number[]) => {
-    if (!currentOpenFile.endsWith('.md')) return;
+    if (!currentOpenFile.name.endsWith('.md')) return;
 
     const key = 'react-resizable-panels:layout';
     const value = JSON.stringify(sizes);
@@ -183,7 +182,7 @@ const Editor = (props: IEditorProps) => {
       </ResizablePanel>
       <ResizableHandle withHandle />
       {
-        currentOpenFile.endsWith('.md') ? (
+        currentOpenFile.name.endsWith('.md') ? (
           <>
             <ResizablePanel defaultSize={defaultLayout[1]}>
               {/* 编辑区 */}
@@ -192,7 +191,7 @@ const Editor = (props: IEditorProps) => {
                   ref={textAreaRef}
                   onInput={handleInput}
                   spellCheck={false}
-                  key={currentOpenFile}
+                  key={currentOpenFile.path}
                   className={cn(
                     'w-full min-h-screen',
                     'px-8 py-4 box-border',
@@ -241,7 +240,7 @@ const Editor = (props: IEditorProps) => {
             </ResizablePanel>
           </>
         ) : (
-          currentOpenFile.endsWith('.png') || currentOpenFile.endsWith('.jpg') || currentOpenFile.endsWith('.jpeg')
+          currentOpenFile.name.endsWith('.png') || currentOpenFile.name.endsWith('.jpg') || currentOpenFile.name.endsWith('.jpeg')
             ? (
               <ResizablePanel className="px-4 py-2">
                 <div className={cn(
@@ -251,7 +250,7 @@ const Editor = (props: IEditorProps) => {
                   'relative'
                 )}>
                   <img
-                    src={'atom://innote?filepath=' + encodeURIComponent(currentOpenFile)}
+                    src={'atom://innote?filepath=' + encodeURIComponent(currentOpenFile.path)}
                     className={cn(
                       'w-full',
                       'rounded',
@@ -260,7 +259,7 @@ const Editor = (props: IEditorProps) => {
                     )}
                   />
                   <img
-                    src={'atom://innote?filepath=' + encodeURIComponent(currentOpenFile)}
+                    src={'atom://innote?filepath=' + encodeURIComponent(currentOpenFile.path)}
                     className={cn(
                       'max-w-full max-h-full',
                       'rounded',
@@ -278,7 +277,7 @@ const Editor = (props: IEditorProps) => {
                     <div className="text-center lg:w-2/3 w-full">
                       <h1 className="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900">InnoTe Editor</h1>
                       {
-                        currentOpenFile === ''
+                        currentOpenFile.name === ''
                           ? (<p className="my-4 leading-relaxed">点击「文件 - 打开目录」立即开始编写你的 Markdown 文件</p>)
                           : (<p className="my-4 leading-relaxed">暂不支持该文件类型哦~</p>)
                       }

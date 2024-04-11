@@ -23,7 +23,10 @@ export default function Home() {
     dispatch({ type: 'SET_CURRENT_DIRECTORY', currentDirectory: directory });
   }
 
-  const setCurrentOpenFile = (file: string) => {
+  const setCurrentOpenFile = (file: {
+    path: string;
+    name: string;
+  }) => {
     dispatch({ type: 'SET_CURRENT_OPEN_FILE', currentOpenFile: file });
   }
 
@@ -38,7 +41,7 @@ export default function Home() {
 
   useEffect(() => {
     setCurrentDirectory(localStorage.getItem(CURRENT_OPEN_DIRECTORY_KEY) || '');
-    setCurrentOpenFile(localStorage.getItem(CURRENT_OPEN_FILE_PATH) || '');
+    setCurrentOpenFile(JSON.parse(localStorage.getItem(CURRENT_OPEN_FILE_PATH) || '{"name":"","path":""}'));
     setFileList(JSON.parse(localStorage.getItem(FILE_LIST_BEFORE_CLOSE_KEY) || '[]'));
     const defaultLayout = JSON.parse(localStorage.getItem('react-resizable-panels:layout') || '[10, 37, 37, 16]');
     setDefaultLayout(defaultLayout);
@@ -47,7 +50,7 @@ export default function Home() {
 
   const pageTitle = currentDirectory
     ? [
-      currentOpenFile.split('/').pop(),
+      currentOpenFile.name,
       currentDirectory
     ].join(' - ')
     : 'InnoTe Editor';
