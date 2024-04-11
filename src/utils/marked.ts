@@ -84,60 +84,81 @@ marked.use({
     },
   },
   walkTokens(token) {
-    if (token.type === "link") {
-      const cleanHref = cleanUrl(token.href);
-      if (cleanHref?.includes("bilibili")) {
-        console.log(token);
-        // 生成 B 站内嵌视频的标签
-        const bid = new URL(cleanHref).pathname
-          .split("/")
-          .filter(Boolean)
-          .pop();
-        if (!bid) return Promise.resolve(void 0);
+    if (token.type !== "link") return;
 
-        const videoIframe = `<iframe referrerpolicy="origin" src="//player.bilibili.com/player.html?bvid=${bid}&amp;page=1&amp;high_quality=1&amp;as_wide=1&amp;allowfullscreen=true&amp;autoplay=0" frameborder="no" allowfullscreen="" sandbox="allow-top-navigation-by-user-activation allow-same-origin allow-forms allow-scripts allow-popups" class="" style="width: 100%; height: 100%;" data-spm-anchor-id="wolai.workspace.0.i0.4d2b767bSGb7ID" data-spm-act-id="wolai.workspace.0.i0.4d2b767bSGb7ID"></iframe>`;
-        token.tokens = marked.Lexer.lexInline(videoIframe);
-      } else if (cleanHref?.includes("music.163.com")) {
-        const id = new URL(cleanHref).hash
-          .split("?")
-          .filter((i) => i.startsWith("id="))[0]
-          .split("=")[1];
-        if (!id) return Promise.resolve(void 0);
+    const cleanHref = cleanUrl(token.href);
+    if (cleanHref?.includes("bilibili")) {
+      console.log(token);
+      // 生成 B 站内嵌视频的标签
+      const bid = new URL(cleanHref).pathname.split("/").filter(Boolean).pop();
+      if (!bid) return;
 
-        const musicIframe = `<iframe referrerpolicy="origin" src="https://music.163.com/outchain/player?type=2&amp;id=${id}&amp;auto=0&amp;height=66" frameborder="no" allowfullscreen="" sandbox="allow-top-navigation-by-user-activation allow-same-origin allow-forms allow-scripts allow-popups" class="" style="width: 100%; height: 100%; pointer-events: auto;"></iframe>`;
-        token.tokens = marked.Lexer.lexInline(musicIframe);
-      } else if (
-        cleanHref?.includes("douban") ||
-        cleanHref?.includes("github")
-      ) {
-        console.log(token.raw, cleanHref, token);
-        if (token.raw.startsWith("http") || token.raw.startsWith("https")) {
-          const uuid = nanoid();
-          /** 生成默认预取板块 */
-          const defaultCard = `<div class="marked-link-og" id="card_${uuid}">
+      const cacheKey = md5(`${cleanHref}_${bid}`);
+
+      const videoIframe = `<iframe 
+          key=${cacheKey}
+          referrerpolicy="origin" 
+          src="//player.bilibili.com/player.html?bvid=${bid}&amp;page=1&amp;high_quality=1&amp;as_wide=1&amp;allowfullscreen=true&amp;autoplay=0" 
+          frameborder="no" 
+          allowfullscreen="" 
+          sandbox="allow-top-navigation-by-user-activation allow-same-origin allow-forms allow-scripts allow-popups" 
+          style="width: 100%; height: 100%;" 
+          ></iframe>`;
+      token.tokens = marked.Lexer.lexInline(videoIframe);
+      return;
+    }
+
+    if (cleanHref?.includes("music.163.com")) {
+      const id = new URL(cleanHref).hash
+        .split("?")
+        .filter((i) => i.startsWith("id="))[0]
+        .split("=")[1];
+      if (!id) return;
+
+      const cacheKey = md5(`${cleanHref}_${id}`);
+
+      const musicIframe = `<iframe 
+          key=${cacheKey}
+          referrerpolicy="origin" 
+          src="https://music.163.com/outchain/player?type=2&amp;id=${id}&amp;auto=0&amp;height=66" 
+          frameborder="no" 
+          allowfullscreen="" 
+          sandbox="allow-top-navigation-by-user-activation allow-same-origin allow-forms allow-scripts allow-popups" 
+          style="width: 100%; height: 100%; pointer-events: auto;"
+          ></iframe>`;
+      token.tokens = marked.Lexer.lexInline(musicIframe);
+      return;
+    }
+
+    if (cleanHref?.includes("douban") || cleanHref?.includes("github")) {
+      if (!(token.raw.startsWith("http") && token.raw.startsWith("https")))
+        return;
+
+      const uuid = nanoid();
+      /** 生成默认预取板块 */
+      const defaultCard = `<div class="marked-link-og" id="card_${uuid}">
               <p class="og-default-title">预取中……</p>
             </div>`;
-          token.tokens = marked.Lexer.lexInline(defaultCard);
+      token.tokens = marked.Lexer.lexInline(defaultCard);
 
-          /** 拉取并生成缩略板块 */
-          fetchLinkOpenGraph(cleanHref).then((result) => {
-            const [err, desc] = result;
+      /** 拉取并生成缩略板块 */
+      fetchLinkOpenGraph(cleanHref).then((result) => {
+        const [err, desc] = result;
 
-            let card = "";
-            if (err) {
-              card = `<p class="og-default-title">拉取失败</p>`;
-            } else {
-              const { url, title, description, siteName, image } = desc || {
-                url: "",
-                title: "",
-                description: "",
-                siteName: "",
-                image: "",
-              };
-              const isFetched =
-                url || title || description || siteName || image;
-              card = isFetched
-                ? `<div class="og-info">
+        let card = "";
+        if (err) {
+          card = `<p class="og-default-title">拉取失败</p>`;
+        } else {
+          const { url, title, description, siteName, image } = desc || {
+            url: "",
+            title: "",
+            description: "",
+            siteName: "",
+            image: "",
+          };
+          const isFetched = url || title || description || siteName || image;
+          card = isFetched
+            ? `<div class="og-info">
                       <p class="og-title">${desc?.title}</p>
                       <p class="og-description">${desc?.description}</p>
                       <p class="og-site">${desc?.siteName}</p>
@@ -145,21 +166,22 @@ marked.use({
                     <div class="og-image">
                       <img src="${desc?.image}" referrerPolicy="no-referrer" alt="${desc?.title}" />
                     </div>`
-                : defaultCard;
-            }
+            : defaultCard;
+        }
 
-            const target = document.querySelector(`#card_${uuid}`);
-            console.log(target);
-            if (target) {
-              target.innerHTML = card;
-              target.addEventListener("click", () => {
-                window.open(cleanHref, "_blank");
-              });
-            }
+        const target = document.querySelector(`#card_${uuid}`);
+        console.log(target);
+        if (target) {
+          target.innerHTML = card;
+          target.addEventListener("click", () => {
+            window.open(cleanHref, "_blank");
           });
         }
-      }
+      });
+      return;
     }
+
+    return;
   },
 });
 

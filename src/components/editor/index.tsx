@@ -14,6 +14,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { useDebounce } from 'react-use';
 import { CURRENT_OPEN_FILE_PATH } from "@/constants/storage";
 import { toast } from "sonner";
+import { ContentRenderer } from "../content-renderer";
 
 export interface IEditorProps {
   currentOpenFile: { name: string; path: string };
@@ -38,7 +39,6 @@ const Editor = (props: IEditorProps) => {
   const [toc, setTOC] = useState<string>('');
   const [debounceFnFlag, setDebounceFnFlag] = useState<number>(0);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const markedResultRef = useRef<HTMLDivElement>(null);
 
   useDebounce(() => {
     if (debounceFnFlag === 0) return;
@@ -212,15 +212,7 @@ const Editor = (props: IEditorProps) => {
                   "w-full h-full",
                   "preview-area-container"
                 )}>
-                <div
-                  dangerouslySetInnerHTML={{ __html: markedResult }}
-                  key={markedResult}
-                  ref={markedResultRef}
-                  className={cn(
-                    'markdown-body',
-                    'w-full h-full box-border',
-                    'px-8 pt-4 pb-24'
-                  )} />
+                <ContentRenderer content={markedResult} />
                 <ScrollBar orientation="vertical" />
               </ScrollArea>
             </ResizablePanel>
