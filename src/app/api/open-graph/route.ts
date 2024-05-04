@@ -1,32 +1,29 @@
-import { NextRequest } from "next/server"
-import { kv } from '@vercel/kv';
+import { NextRequest } from "next/server";
+import { kv } from "@vercel/kv";
 import * as cheerio from "cheerio";
 import md5 from "md5";
 
 export async function GET(request: NextRequest) {
   const sp = request.nextUrl.searchParams;
-  const query = sp.get('url');
+  const query = sp.get("url");
 
   if (!query) {
-    return new Response('Missing url parameter', { status: 400 });
+    return new Response("Missing url parameter", { status: 400 });
   }
 
-
-  const key = `url_preview_${md5(query)}`
+  const key = `url_preview_${md5(query)}_v0.0.2`;
   const cache = await kv.get<string>(key);
 
   if (cache) {
-    
-    return Response.json({ 
-      status: 'ok',
+    return Response.json({
+      status: "ok",
       result: cache,
-     })
+    });
   }
 
   const response = await fetch(query);
 
   const html = await response.text();
- 
   const $ = cheerio.load(html);
 
   const obj: {
@@ -46,9 +43,11 @@ export async function GET(request: NextRequest) {
   $("meta")
     .toArray()
     .forEach((item: cheerio.Element) => {
-      switch ($(item).attr("property")) {
+      switch ($(item).attr("property") || $(item).attr("name")) {
         case "og:description":
-          obj.description = $(item).attr("content") as string;
+        case "description":
+          obj.description =
+            obj.description || ($(item).attr("content") as string);
           break;
         case "og:site_name":
           obj.siteName = $(item).attr("content") as string;
@@ -66,10 +65,10 @@ export async function GET(request: NextRequest) {
     });
 
   kv.set(key, obj);
-  console.log('set cache to ' + key)
+  console.log("set cache to " + key);
 
-  return Response.json({ 
-    status: 'ok',
+  return Response.json({
+    status: "ok",
     result: obj,
-   })
+  });
 }
