@@ -16,6 +16,9 @@ export const onLeaveFullScreen = (callback: () => void) =>
 export const isFullScreen = () => window.electronAPI.app.isFullScreen();
 export const isSimpleFullScreen = () =>
   window.electronAPI.app.isSimpleFullScreen();
+export const openExternalLink = (url: string) => {
+  window.electronAPI.app.openExternalLink(url);
+}
 
 // export const testVersion = (): string | undefined => {
 //   return versionLimit<string>([IPlatform.MacOS, IPlatform.Windows], "1.0.0", () => {

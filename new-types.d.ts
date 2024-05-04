@@ -17,6 +17,7 @@ export interface IElectronAPI {
     onUnMaximized: (callback: () => void) => void;
     onEnterFullScreen: (callback: () => void) => void;
     onLeaveFullScreen: (callback: () => void) => void;
+    openExternalLink: (link: string) => Promise<void>;
   };
   files: {
     openDirectory: () => Promise<string>;
