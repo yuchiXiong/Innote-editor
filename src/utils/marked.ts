@@ -5,6 +5,7 @@ import { markedHighlight } from "marked-highlight";
 import hljs from "highlight.js";
 import { nanoid } from "nanoid";
 import md5 from "md5";
+import { CURRENT_OPEN_FILE_PATH } from "@/constants/storage";
 
 const cleanUrl = (href: string) => {
   try {
@@ -108,6 +109,18 @@ marked.use({
       return `<a href="${newHref}" target="_blank" rel="noopener noreferrer" title="${
         title || ""
       }">${text}</a>`;
+    },
+    image(href: string, title: string | null | undefined, text: string) {
+      if (href?.includes("http")) {
+        return `<img src="${href}" alt="${text}" title="${title || ""}" />`;
+      } else {
+        // 相对路径
+        const currentOpenFile = JSON.parse(localStorage.getItem(CURRENT_OPEN_FILE_PATH) || '{"name":"","path":""}');
+        const path = currentOpenFile.path.replace(currentOpenFile.name, '');
+        return `<img src="atom://innote?filepath=${encodeURIComponent(
+          href
+        )}&path=${encodeURIComponent(path)}" alt="${text}" title="${title || ""}" />`;
+      }
     },
   },
   walkTokens(token) {

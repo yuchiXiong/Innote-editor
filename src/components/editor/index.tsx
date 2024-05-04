@@ -58,6 +58,29 @@ const Editor = (props: IEditorProps) => {
     })
   }, [props.currentDirectory])
 
+  useEffect(() => {
+    textAreaRef.current?.addEventListener('paste', handleTextAreaPaste);
+
+    return () => {
+      textAreaRef.current?.removeEventListener('paste', handleTextAreaPaste);
+    }
+  })
+
+  const handleTextAreaPaste = async (e: ClipboardEvent): Promise<any> => {
+    e.preventDefault();
+    const path = currentOpenFile.path.replace(currentOpenFile.name, '');
+    const imagePath = await files.saveImageFromClipboard(path);
+
+    if (!textAreaRef.current) return;
+
+    const start = textAreaRef.current.selectionStart;
+    const finish = textAreaRef.current.selectionEnd;
+
+    // 替换选中内容
+    textAreaRef.current.value = textAreaRef.current.value.substring(0, start) + `![${imagePath}](${imagePath})` + textAreaRef.current.value.substring(finish);
+    
+  }
+
   const updateEditor = useCallback((file: { name: string; path: string }, fileContent: string) => {
     setCurrentOpenFile(file);
     if (!file.name.endsWith('.md')) return;

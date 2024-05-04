@@ -44,3 +44,7 @@ export const saveFileContent = (
 export const pathJoin = (paths: string[]): string => {
   return window.electronAPI.files.pathJoin(paths);
 };
+
+export const saveImageFromClipboard = (path: string) => {
+  return window.electronAPI.files.saveImageFromClipboard(path);
+}

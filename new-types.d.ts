@@ -30,6 +30,7 @@ export interface IElectronAPI {
     >;
     getFileContent: (path: string) => Promise<string>;
     saveFileContent: (path: string, content: string) => Promise<void>;
+    saveImageFromClipboard: (path: string) => Promise<string>;
     pathJoin: (paths: string[]) => string;
   };
 }
