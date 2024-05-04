@@ -67,7 +67,7 @@ const fetchLinkOpenGraph = async (
   if (!response) return [true, undefined];
 
   const obj = response.data.result;
-  console.log(obj);
+  // console.log(obj);
 
   cache.set(url, obj);
 
@@ -82,31 +82,38 @@ marked.use({
 
       return `<h${level} id="${id}" class="transition-all duration-1000 ease-in-out">${text}</h${level}>\n`;
     },
+    link(href: string, title: string | null | undefined, text: string) {
+      if (href?.includes("bilibili") && href?.includes("video")) {
+        // 生成 B 站内嵌视频的标签
+        const bid = new URL(href).pathname.split("/").filter(Boolean).pop();
+        if (!bid) return "";
+
+        const cacheKey = md5(`${href}_${bid}`);
+
+        return `
+          <iframe 
+          key=${cacheKey}
+          referrerpolicy="origin" 
+          src="//player.bilibili.com/player.html?bvid=${bid}&amp;page=1&amp;high_quality=1&amp;as_wide=1&amp;allowfullscreen=true&amp;autoplay=0" 
+          frameborder="no" 
+          allowfullscreen=""
+          sandbox="allow-top-navigation-by-user-activation allow-same-origin allow-forms allow-scripts allow-popups"
+          style="width: 100%; height: 100%; pointer-events: auto;" 
+          ></iframe>
+        `;
+      }
+
+      // link 标签统一使用 target="_blank" 由端进行拦截并使用默认浏览器打开
+      const newHref = href.includes("http") ? href : `https://${href}`;
+      return `<a href="${newHref}" target="_blank" rel="noopener noreferrer" title="${
+        title || ""
+      }">${text}</a>`;
+    },
   },
   walkTokens(token) {
     if (token.type !== "link") return;
 
     const cleanHref = cleanUrl(token.href);
-    if (cleanHref?.includes("bilibili")) {
-      console.log(token);
-      // 生成 B 站内嵌视频的标签
-      const bid = new URL(cleanHref).pathname.split("/").filter(Boolean).pop();
-      if (!bid) return;
-
-      const cacheKey = md5(`${cleanHref}_${bid}`);
-
-      const videoIframe = `<iframe 
-          key=${cacheKey}
-          referrerpolicy="origin" 
-          src="//player.bilibili.com/player.html?bvid=${bid}&amp;page=1&amp;high_quality=1&amp;as_wide=1&amp;allowfullscreen=true&amp;autoplay=0" 
-          frameborder="no" 
-          allowfullscreen="" 
-          sandbox="allow-top-navigation-by-user-activation allow-same-origin allow-forms allow-scripts allow-popups" 
-          style="width: 100%; height: 100%;" 
-          ></iframe>`;
-      token.tokens = marked.Lexer.lexInline(videoIframe);
-      return;
-    }
 
     if (cleanHref?.includes("music.163.com")) {
       const id = new URL(cleanHref).hash
@@ -130,7 +137,11 @@ marked.use({
       return;
     }
 
-    if (cleanHref?.includes("douban") || cleanHref?.includes("github")) {
+    if (
+      cleanHref?.includes("douban") ||
+      cleanHref?.includes("github") ||
+      (cleanHref?.includes("bilibili") && cleanHref?.includes("bangumi"))
+    ) {
       if (!(token.raw.startsWith("http") && token.raw.startsWith("https")))
         return;
 
@@ -170,12 +181,8 @@ marked.use({
         }
 
         const target = document.querySelector(`#card_${uuid}`);
-        console.log(target);
         if (target) {
           target.innerHTML = card;
-          target.addEventListener("click", () => {
-            window.open(cleanHref, "_blank");
-          });
         }
       });
       return;
